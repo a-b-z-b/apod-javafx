@@ -2,25 +2,52 @@ package org.apod;
 
 import javafx.application.Application;
 import javafx.scene.Scene;
-import javafx.scene.control.Label;
-import javafx.scene.layout.StackPane;
+import javafx.scene.layout.AnchorPane;
+import javafx.scene.layout.BorderPane;
 import javafx.stage.Stage;
-
+import javafx.fxml.FXMLLoader;
 
 /**
  * JavaFX App
  */
 public class APODApp extends Application {
+    private Stage stage;
+    private BorderPane root;
 
     @Override
     public void start(Stage stage) {
-        var javaVersion = SystemInfo.javaVersion();
-        var javafxVersion = SystemInfo.javafxVersion();
+        this.stage = stage;
+        this.stage.setTitle("Astronomy Picture Of the Day");
 
-        var label = new Label("Hello, JavaFX " + javafxVersion + ", running on Java " + javaVersion + ".");
-        var scene = new Scene(new StackPane(label), 760, 760);
-        stage.setScene(scene);
-        stage.show();
+        initRootLayout();
+
+        showMainAPOD();
+    }
+
+    public void initRootLayout() {
+        try {
+            FXMLLoader loader = new FXMLLoader();
+            loader.setLocation(getClass().getResource("/fxml/root-apod.fxml"));
+
+            root = loader.load();
+            var scene = new Scene(root);
+            stage.setScene(scene);
+            stage.show();
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public void showMainAPOD() {
+        try {
+            FXMLLoader loader = new FXMLLoader();
+            loader.setLocation(getClass().getResource("/fxml/main-apod.fxml"));
+
+            AnchorPane mainAPOD = loader.load();
+            root.setCenter(mainAPOD);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
     }
 
     public static void main(String[] args) {
