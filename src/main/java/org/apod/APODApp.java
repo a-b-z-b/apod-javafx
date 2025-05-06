@@ -1,4 +1,4 @@
-package org.openjfx;
+package org.apod;
 
 import javafx.application.Application;
 import javafx.scene.Scene;
@@ -10,7 +10,7 @@ import javafx.stage.Stage;
 /**
  * JavaFX App
  */
-public class App extends Application {
+public class APODApp extends Application {
 
     @Override
     public void start(Stage stage) {

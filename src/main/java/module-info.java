@@ -1,4 +1,4 @@
-module org.openjfx {
+module org.apod {
     requires javafx.controls;
-    exports org.openjfx;
+    exports org.apod;
 }
