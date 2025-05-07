@@ -8,18 +8,19 @@
 <?import javafx.scene.layout.Pane?>
 <?import javafx.scene.web.WebView?>
 
-<AnchorPane prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.apod.controller.MainApod">
+<AnchorPane prefHeight="400.0" prefWidth="700.0" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.apod.controller.MainApod">
    <children>
-      <Label layoutX="260.0" layoutY="25.0" text="Today's Picture" />
-      <Pane layoutX="200.0" layoutY="85.0">
+      <WebView fx:id="apodYtVideo" layoutX="174.0" layoutY="83.0" prefHeight="200.0" prefWidth="352.0" />
+      <Label layoutX="310.0" layoutY="26.0" text="Today's Picture" />
+      <Pane layoutX="250.0" layoutY="83.0" prefHeight="200.0" prefWidth="200.0">
          <children>
-            <ImageView fx:id="todayApod" fitHeight="134.0" fitWidth="200.0" pickOnBounds="true" preserveRatio="true">
+            <ImageView fx:id="todayApod" fitHeight="180.0" fitWidth="200.0" pickOnBounds="true" preserveRatio="true">
                <image>
                   <Image url="@../assets/23.gif" />
                </image></ImageView>
-            <Button fx:id="fullscreenBtn" layoutX="175.0" layoutY="175.0" maxHeight="26.0" maxWidth="23.0" minHeight="14.0" minWidth="14.0" mnemonicParsing="false" prefHeight="18.0" prefWidth="18.0">
+            <Button fx:id="fullscreenBtn" layoutX="168.0" layoutY="167.0" maxHeight="26.0" maxWidth="30.0" minHeight="14.0" minWidth="14.0" mnemonicParsing="false" prefHeight="26.0" prefWidth="30.0">
                <graphic>
-                  <ImageView fitHeight="17.0" fitWidth="17.0" pickOnBounds="true" preserveRatio="true">
+                  <ImageView fitHeight="20.0" fitWidth="20.0" pickOnBounds="true" preserveRatio="true">
                      <image>
                         <Image url="@../assets/fullscreen.png" />
                      </image>
@@ -28,9 +29,9 @@
             </Button>
          </children>
       </Pane>
-      <Label fx:id="apodTitle" alignment="CENTER" contentDisplay="CENTER" layoutX="151.0" layoutY="285.0" prefHeight="50.0" prefWidth="298.0" text="Loading..." textAlignment="JUSTIFY" />
-      <Button fx:id="factsBtn" layoutX="196.0" layoutY="347.0" mnemonicParsing="false" text="See Facts" />
-      <Button fx:id="saveBtn" layoutX="336.0" layoutY="347.0" mnemonicParsing="false" prefHeight="26.0" prefWidth="66.0" text="Save" />
+      <Label fx:id="apodTitle" alignment="CENTER" contentDisplay="CENTER" layoutX="201.0" layoutY="286.0" prefHeight="50.0" prefWidth="298.0" text="Loading..." textAlignment="JUSTIFY" />
+      <Button fx:id="factsBtn" layoutX="246.0" layoutY="348.0" mnemonicParsing="false" onAction="#seeFactsHandler" text="See Facts" />
+      <Button fx:id="saveBtn" layoutX="386.0" layoutY="348.0" mnemonicParsing="false" prefHeight="26.0" prefWidth="66.0" text="Save" />
       <Button fx:id="burgerMenuBtn" layoutX="14.0" layoutY="14.0" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" mnemonicParsing="false" prefHeight="20.0" prefWidth="20.0">
          <graphic>
             <ImageView fitHeight="20.0" fitWidth="20.0" pickOnBounds="true" preserveRatio="true">
@@ -40,6 +41,5 @@
             </ImageView>
          </graphic>
       </Button>
-      <WebView fx:id="apodYtVideo" layoutX="124.0" layoutY="82.0" prefHeight="200.0" prefWidth="352.0" />
    </children>
 </AnchorPane>

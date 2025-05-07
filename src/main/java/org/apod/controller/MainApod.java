@@ -4,12 +4,19 @@ import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import javafx.application.Platform;
+import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Node;
+import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import javafx.scene.layout.AnchorPane;
+import javafx.scene.layout.BorderPane;
 import javafx.scene.web.WebView;
+import javafx.stage.Stage;
 import org.apod.model.ImageAPOD;
 import org.apod.model.VideoAPOD;
 import org.apod.service.RedisCacheService;
@@ -44,8 +51,17 @@ public class MainApod {
     public WebView apodYtVideo;
 
     @FXML
+    public Button factsBtn;
+
+    @FXML
+    public Button saveBtn;
+
+    @FXML
     public void initialize() {
         String todayApodJson = redisCacheService.get(APOD_KEY);
+
+        saveBtn.setDisable(true);
+        factsBtn.setDisable(true);
 
         if(todayApodJson != null) {
             renderApod(todayApodJson);
@@ -71,6 +87,8 @@ public class MainApod {
                     });
         }
 
+        saveBtn.setDisable(false);
+        factsBtn.setDisable(false);
     }
 
     public void renderApod(String json) {
@@ -104,5 +122,32 @@ public class MainApod {
                     break;
             }
         });
+    }
+
+    @FXML
+    public void seeFactsHandler(ActionEvent event) {
+        Node node = (Node) event.getSource();
+        Stage stage = (Stage) node.getScene().getWindow();
+
+        try {
+            FXMLLoader rootLoader = new FXMLLoader();
+            rootLoader.setLocation(getClass().getResource("/fxml/root-apod.fxml"));
+
+            FXMLLoader factsLoader = new FXMLLoader();
+            factsLoader.setLocation(getClass().getResource("/fxml/facts-apod.fxml"));
+
+            BorderPane root = rootLoader.load();
+
+            factsLoader.setControllerFactory(param -> new FactsApod(redisCacheService, gson));
+            AnchorPane factsAPOD = factsLoader.load();
+
+            root.setCenter(factsAPOD);
+
+            var scene = new Scene(root);
+            stage.setScene(scene);
+            stage.show();
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
     }
 }
