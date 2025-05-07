@@ -8,7 +8,11 @@ import javafx.scene.layout.BorderPane;
 import javafx.stage.Stage;
 import javafx.fxml.FXMLLoader;
 import org.apod.controller.MainApod;
+import org.apod.data.DBConnection;
+import org.apod.data.MigrationsRunner;
 import org.apod.service.RedisCacheService;
+
+import java.sql.Connection;
 
 /**
  * JavaFX App
@@ -20,6 +24,8 @@ public class APODApp extends Application {
     private RedisCacheService cacheService;
     private Gson gson;
 
+    private Connection connection;
+
     @Override
     public void start(Stage stage) {
         this.stage = stage;
@@ -27,6 +33,9 @@ public class APODApp extends Application {
 
         this.cacheService = new RedisCacheService("localhost", 6379);
         this.gson = new Gson();
+
+        this.connection = DBConnection.getConnection("sqlite");
+        MigrationsRunner.runMigrations(connection, "/db/migrations/sqlite/init.sql");
 
         initRootLayout();
 
