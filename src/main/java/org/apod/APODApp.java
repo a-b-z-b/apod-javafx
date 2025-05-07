@@ -17,14 +17,32 @@ public class APODApp extends Application {
     private Stage stage;
     private BorderPane root;
 
+    private RedisCacheService cacheService;
+    private Gson gson;
+
     @Override
     public void start(Stage stage) {
         this.stage = stage;
         this.stage.setTitle("Astronomy Picture Of the Day");
 
+        this.cacheService = new RedisCacheService("localhost", 6379);
+        this.gson = new Gson();
+
         initRootLayout();
 
         showMainAPOD();
+    }
+
+    @Override
+    public void stop() throws Exception {
+        // cleanly release resources
+        if (cacheService != null) {
+            cacheService.shutDown();
+        }
+
+        if (gson != null) {
+            gson = null;
+        }
     }
 
     public void initRootLayout() {
@@ -43,8 +61,6 @@ public class APODApp extends Application {
 
     public void showMainAPOD() {
         try {
-            RedisCacheService cacheService = new RedisCacheService("localhost", 6379);
-            Gson gson = new Gson();
 
             FXMLLoader loader = new FXMLLoader();
             loader.setLocation(getClass().getResource("/fxml/main-apod.fxml"));
