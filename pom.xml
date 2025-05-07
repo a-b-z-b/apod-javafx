@@ -31,6 +31,11 @@
             <artifactId>javafx-web</artifactId>
             <version>25-ea+14</version>
         </dependency>
+        <dependency>
+            <groupId>redis.clients</groupId>
+            <artifactId>jedis</artifactId>
+            <version>5.2.0</version>
+        </dependency>
     </dependencies>
     <build>
         <plugins>
