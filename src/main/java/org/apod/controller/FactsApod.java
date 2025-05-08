@@ -86,7 +86,11 @@ public class FactsApod {
 
                     apodYtVideo.setVisible(false);
 
-                    cpRightPhotographer.setText(iAPOD.getCopyright().trim());
+                    if (iAPOD.getCopyright() != null) {
+                        cpRightPhotographer.setText(iAPOD.getCopyright().trim());
+                    } else {
+                        cpRightPhotographer.setText("APOD NASA API.");
+                    }
 
                     apodImage.setImage(new Image(iAPOD.getHdurl()));
                     apodImage.setVisible(true);

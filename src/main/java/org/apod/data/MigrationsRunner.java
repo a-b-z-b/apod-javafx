@@ -11,7 +11,6 @@ public class MigrationsRunner {
         for (String sqlFilePath : sqlFilePaths) {
             try {
                 URL resourceUrl = MigrationsRunner.class.getResource(sqlFilePath);
-                System.out.println("RESOURCE URL: " + resourceUrl);
                 if (resourceUrl == null) {
                     throw new RuntimeException("Resource not found: " + sqlFilePath);
                 }
