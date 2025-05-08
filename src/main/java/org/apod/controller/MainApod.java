@@ -17,10 +17,10 @@ import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.web.WebView;
 import javafx.stage.Stage;
+import org.apod.model.APOD;
 import org.apod.model.ImageAPOD;
 import org.apod.model.VideoAPOD;
 import org.apod.repository.APODRepository;
-import org.apod.repository.Repository;
 import org.apod.service.RedisCacheService;
 
 import java.net.URI;
@@ -36,6 +36,8 @@ public class MainApod {
     private RedisCacheService redisCacheService;
 
     private APODRepository repository;
+
+    private APOD theMainApod;
 
     public MainApod(RedisCacheService redisCacheService, Gson gson, APODRepository repository) {
         this.gson = gson;
@@ -62,11 +64,14 @@ public class MainApod {
     public Button saveBtn;
 
     @FXML
+    public Label saveActionToast;
+
+    @FXML
     public void initialize() {
         String todayApodJson = redisCacheService.get(APOD_KEY);
 
-        saveBtn.setDisable(true);
-        factsBtn.setDisable(true);
+        saveBtn.setVisible(false);
+        factsBtn.setVisible(false);
 
         if(todayApodJson != null) {
             renderApod(todayApodJson);
@@ -91,9 +96,6 @@ public class MainApod {
                         return null;
                     });
         }
-
-        saveBtn.setDisable(false);
-        factsBtn.setDisable(false);
     }
 
     public void renderApod(String json) {
@@ -105,6 +107,8 @@ public class MainApod {
             switch (mediaType) {
                 case "video":
                     VideoAPOD vAPOD = gson.fromJson(json, VideoAPOD.class);
+                    theMainApod = vAPOD;
+
                     apodTitle.setText(vAPOD.getTitle());
                     fullscreenBtn.setVisible(true);
                     todayApod.setVisible(false);
@@ -115,6 +119,8 @@ public class MainApod {
                     break;
                 case "image":
                     ImageAPOD iAPOD = gson.fromJson(json, ImageAPOD.class);
+                    theMainApod = iAPOD;
+
                     apodYtVideo.setVisible(false);
                     todayApod.setImage(new Image(iAPOD.getHdurl()));
                     todayApod.setVisible(true);
@@ -125,6 +131,16 @@ public class MainApod {
                     todayApod.setVisible(false);
                     apodYtVideo.setVisible(false);
                     break;
+            }
+
+            if(!repository.existsByDate(theMainApod.getDate())){
+                saveBtn.setVisible(true);
+            }
+
+            factsBtn.setVisible(true);
+            if (!saveBtn.isVisible()) {
+                factsBtn.setLayoutX(317);
+                factsBtn.setLayoutY(348);
             }
         });
     }
@@ -143,7 +159,7 @@ public class MainApod {
 
             BorderPane root = rootLoader.load();
 
-            factsLoader.setControllerFactory(param -> new FactsApod(redisCacheService, gson));
+            factsLoader.setControllerFactory(param -> new FactsApod(redisCacheService, gson, repository));
             AnchorPane factsAPOD = factsLoader.load();
 
             root.setCenter(factsAPOD);
@@ -158,9 +174,18 @@ public class MainApod {
 
     @FXML
     public void saveHandler(ActionEvent saveEvent) {
-        // save the apod into sqlite
-        // 1- depending on media-type u choose repository class.
-        // 2- use the repository methods to store the apod.
-        // 3- notify user that operation succeeded via a toast like component.
+        if (!repository.existsByDate(theMainApod.getDate())) {
+            repository.save(theMainApod);
+            saveActionToast.setVisible(true);
+            saveBtn.setVisible(false);
+            new Thread(() -> {
+                try {
+                    Thread.sleep(15000);
+                    saveActionToast.setVisible(false);
+                } catch (Exception e) {
+                    throw new RuntimeException(e);
+                }
+            }).start();
+        }
     }
 }

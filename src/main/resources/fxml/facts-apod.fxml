@@ -9,7 +9,7 @@
 
 <AnchorPane prefHeight="400.0" prefWidth="700.0" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.apod.controller.FactsApod">
    <children>
-      <Button fx:id="saveBtn" layoutX="310.0" layoutY="359.0" mnemonicParsing="false" prefHeight="26.0" prefWidth="72.0" text="Save" />
+      <Button fx:id="saveBtn" layoutX="310.0" layoutY="359.0" mnemonicParsing="false" onAction="#saveHandler" prefHeight="26.0" prefWidth="72.0" text="Save" />
       <ImageView fx:id="apodImage" fitHeight="200.0" fitWidth="290.0" pickOnBounds="true" preserveRatio="true" />
       <WebView fx:id="apodYtVideo" prefHeight="200.0" prefWidth="346.0" />
       <Label fx:id="titleAPOD" alignment="CENTER" contentDisplay="CENTER" layoutX="3.0" layoutY="207.0" prefHeight="18.0" prefWidth="284.0" text="Loading..." textAlignment="JUSTIFY" />

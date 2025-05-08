@@ -6,6 +6,7 @@
 <?import javafx.scene.image.ImageView?>
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.layout.Pane?>
+<?import javafx.scene.text.Font?>
 <?import javafx.scene.web.WebView?>
 
 <AnchorPane prefHeight="400.0" prefWidth="700.0" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.apod.controller.MainApod">
@@ -18,9 +19,9 @@
                <image>
                   <Image url="@../assets/23.gif" />
                </image></ImageView>
-            <Button fx:id="fullscreenBtn" layoutX="168.0" layoutY="167.0" maxHeight="26.0" maxWidth="30.0" minHeight="14.0" minWidth="14.0" mnemonicParsing="false" prefHeight="26.0" prefWidth="30.0">
+            <Button fx:id="fullscreenBtn" layoutX="176.0" layoutY="176.0" maxHeight="26.0" maxWidth="30.0" minHeight="14.0" minWidth="14.0" mnemonicParsing="false" prefHeight="20.0" prefWidth="20.0">
                <graphic>
-                  <ImageView fitHeight="20.0" fitWidth="20.0" pickOnBounds="true" preserveRatio="true">
+                  <ImageView fitHeight="28.0" fitWidth="18.0" pickOnBounds="true" preserveRatio="true">
                      <image>
                         <Image url="@../assets/fullscreen.png" />
                      </image>
@@ -41,5 +42,10 @@
             </ImageView>
          </graphic>
       </Button>
+      <Label fx:id="saveActionToast" alignment="CENTER" contentDisplay="CENTER" layoutX="503.0" layoutY="16.0" prefHeight="18.0" prefWidth="182.0" text="Successfully Saved !" textAlignment="JUSTIFY" textFill="#0ed923" visible="false">
+         <font>
+            <Font name="System Bold" size="12.0" />
+         </font>
+      </Label>
    </children>
 </AnchorPane>

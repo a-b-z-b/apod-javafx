@@ -35,7 +35,9 @@ public class APODApp extends Application {
 
         this.cacheService = new RedisCacheService("localhost", 6379);
         this.gson = new Gson();
+
         this.connection = DBConnection.getConnection("sqlite");
+
         this.apodRepository = new APODRepository(this.connection);
 
         MigrationsRunner.runMigrations(connection, "/db/migrations/sqlite/init.sql");

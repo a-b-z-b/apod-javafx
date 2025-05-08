@@ -4,14 +4,17 @@ import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import javafx.application.Platform;
+import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.web.WebView;
+import org.apod.model.APOD;
 import org.apod.model.ImageAPOD;
 import org.apod.model.VideoAPOD;
+import org.apod.repository.APODRepository;
 import org.apod.service.RedisCacheService;
 
 import java.text.SimpleDateFormat;
@@ -34,23 +37,25 @@ public class FactsApod {
 
     private final String APOD_KEY = "today:apod";
 
+    private APOD theMainApod;
+
     private Gson gson;
     private RedisCacheService redisCacheService;
+    private APODRepository apodRepository;
 
-    public FactsApod(RedisCacheService redisCacheService, Gson gson) {
+    public FactsApod(RedisCacheService redisCacheService, Gson gson, APODRepository apodRepository) {
         this.redisCacheService = redisCacheService;
         this.gson = gson;
+        this.apodRepository = apodRepository;
     }
 
     @FXML
     public void initialize() {
         String todayApodJson = redisCacheService.get(APOD_KEY);
 
-        saveBtn.setDisable(true);
+        saveBtn.setVisible(false);
 
         renderApod(todayApodJson);
-
-        saveBtn.setDisable(false);
     }
 
     public void renderApod(String json) {
@@ -67,6 +72,7 @@ public class FactsApod {
             switch (mediaType) {
                 case "video":
                     VideoAPOD vAPOD = gson.fromJson(json, VideoAPOD.class);
+                    theMainApod = vAPOD;
 
                     apodImage.setVisible(false);
 
@@ -83,6 +89,7 @@ public class FactsApod {
                     break;
                 case "image":
                     ImageAPOD iAPOD = gson.fromJson(json, ImageAPOD.class);
+                    theMainApod = iAPOD;
 
                     apodYtVideo.setVisible(false);
 
@@ -106,7 +113,27 @@ public class FactsApod {
                     apodYtVideo.setVisible(false);
                     break;
             }
+
+            if(!apodRepository.existsByDate(theMainApod.getDate())){
+                saveBtn.setVisible(true);
+            }
         });
     }
 
+    @FXML
+    public void saveHandler(ActionEvent actionEvent) {
+        if (!apodRepository.existsByDate(theMainApod.getDate())) {
+            apodRepository.save(theMainApod);
+            saveBtn.setText("Successfully Saved !");
+            saveBtn.setDisable(true);
+            new Thread(() -> {
+                try {
+                    Thread.sleep(15000);
+                    saveBtn.setVisible(false);
+                } catch (Exception e) {
+                    throw new RuntimeException(e);
+                }
+            }).start();
+        }
+    }
 }
