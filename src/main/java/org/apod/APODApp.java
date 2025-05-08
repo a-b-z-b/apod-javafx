@@ -10,6 +10,7 @@ import javafx.fxml.FXMLLoader;
 import org.apod.controller.MainApod;
 import org.apod.data.DBConnection;
 import org.apod.data.MigrationsRunner;
+import org.apod.repository.APODRepository;
 import org.apod.service.RedisCacheService;
 
 import java.sql.Connection;
@@ -23,6 +24,7 @@ public class APODApp extends Application {
 
     private RedisCacheService cacheService;
     private Gson gson;
+    private APODRepository apodRepository;
 
     private Connection connection;
 
@@ -33,8 +35,9 @@ public class APODApp extends Application {
 
         this.cacheService = new RedisCacheService("localhost", 6379);
         this.gson = new Gson();
-
         this.connection = DBConnection.getConnection("sqlite");
+        this.apodRepository = new APODRepository(this.connection);
+
         MigrationsRunner.runMigrations(connection, "/db/migrations/sqlite/init.sql");
 
         initRootLayout();
@@ -75,7 +78,7 @@ public class APODApp extends Application {
             loader.setLocation(getClass().getResource("/fxml/main-apod.fxml"));
 
             // Inject Dependencies of the Controller
-            loader.setControllerFactory(param -> new MainApod(cacheService, gson));
+            loader.setControllerFactory(param -> new MainApod(cacheService, gson, apodRepository));
 
             AnchorPane mainAPOD = loader.load();
             root.setCenter(mainAPOD);

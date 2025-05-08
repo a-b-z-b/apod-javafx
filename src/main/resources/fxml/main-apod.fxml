@@ -31,7 +31,7 @@
       </Pane>
       <Label fx:id="apodTitle" alignment="CENTER" contentDisplay="CENTER" layoutX="201.0" layoutY="286.0" prefHeight="50.0" prefWidth="298.0" text="Loading..." textAlignment="JUSTIFY" />
       <Button fx:id="factsBtn" layoutX="246.0" layoutY="348.0" mnemonicParsing="false" onAction="#seeFactsHandler" text="See Facts" />
-      <Button fx:id="saveBtn" layoutX="386.0" layoutY="348.0" mnemonicParsing="false" prefHeight="26.0" prefWidth="66.0" text="Save" />
+      <Button fx:id="saveBtn" layoutX="386.0" layoutY="348.0" mnemonicParsing="false" onAction="#saveHandler" prefHeight="26.0" prefWidth="66.0" text="Save" />
       <Button fx:id="burgerMenuBtn" layoutX="14.0" layoutY="14.0" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" mnemonicParsing="false" prefHeight="20.0" prefWidth="20.0">
          <graphic>
             <ImageView fitHeight="20.0" fitWidth="20.0" pickOnBounds="true" preserveRatio="true">

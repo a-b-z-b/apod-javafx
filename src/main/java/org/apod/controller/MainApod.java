@@ -19,6 +19,8 @@ import javafx.scene.web.WebView;
 import javafx.stage.Stage;
 import org.apod.model.ImageAPOD;
 import org.apod.model.VideoAPOD;
+import org.apod.repository.APODRepository;
+import org.apod.repository.Repository;
 import org.apod.service.RedisCacheService;
 
 import java.net.URI;
@@ -33,9 +35,12 @@ public class MainApod {
     private Gson gson;
     private RedisCacheService redisCacheService;
 
-    public MainApod(RedisCacheService redisCacheService, Gson gson) {
+    private APODRepository repository;
+
+    public MainApod(RedisCacheService redisCacheService, Gson gson, APODRepository repository) {
         this.gson = gson;
         this.redisCacheService = redisCacheService;
+        this.repository = repository;
     }
 
     @FXML
@@ -149,5 +154,13 @@ public class MainApod {
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
+    }
+
+    @FXML
+    public void saveHandler(ActionEvent saveEvent) {
+        // save the apod into sqlite
+        // 1- depending on media-type u choose repository class.
+        // 2- use the repository methods to store the apod.
+        // 3- notify user that operation succeeded via a toast like component.
     }
 }

@@ -1,16 +1,10 @@
-CREATE TABLE IF NOT EXISTS apod_image (
+CREATE TABLE IF NOT EXISTS apod (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     title TEXT NOT NULL,
     date TEXT NOT NULL,
-    explanation TEXT,
+    explanation TEXT NOT NULL,
+    media_type TEXT NOT NULL,
     copyright TEXT,
-    hdurl TEXT
-);
-
-CREATE TABLE IF NOT EXISTS apod_video (
-      id INTEGER PRIMARY KEY AUTOINCREMENT,
-      title TEXT NOT NULL,
-      date TEXT NOT NULL,
-      explanation TEXT,
-      url TEXT
+    hdurl TEXT,
+    url TEXT
 );
