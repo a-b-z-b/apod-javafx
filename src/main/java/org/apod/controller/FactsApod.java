@@ -6,11 +6,17 @@ import com.google.gson.JsonParser;
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
+import javafx.scene.control.MenuItem;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import javafx.scene.layout.AnchorPane;
+import javafx.scene.layout.BorderPane;
 import javafx.scene.web.WebView;
+import javafx.stage.Stage;
 import org.apod.model.APOD;
 import org.apod.model.ImageAPOD;
 import org.apod.model.VideoAPOD;
@@ -34,8 +40,15 @@ public class FactsApod {
     public Label dateAPOD;
     @FXML
     public Button saveBtn;
+    @FXML
+    public AnchorPane factsPane;
 
     private final String APOD_KEY = "today:apod";
+
+    private final int MAIN_APOD_WIDTH = 700;
+    private final int MAIN_APOD_HEIGHT = 500;
+    private final int SAVES_APOD_WIDTH = 700;
+    private final int SAVES_APOD_HEIGHT = 500;
 
     private APOD theMainApod;
 
@@ -134,6 +147,70 @@ public class FactsApod {
                     throw new RuntimeException(e);
                 }
             }).start();
+        }
+    }
+
+    @FXML
+    public void goHomeHandler(ActionEvent event) {
+        MenuItem menuItem = (MenuItem) event.getSource();
+
+        Stage stage = (Stage) menuItem.getParentPopup().getOwnerWindow();
+
+        try {
+            FXMLLoader rootLoader = new FXMLLoader();
+            rootLoader.setLocation(getClass().getResource("/fxml/root-apod.fxml"));
+
+            FXMLLoader factsLoader = new FXMLLoader();
+            factsLoader.setLocation(getClass().getResource("/fxml/main-apod.fxml"));
+
+            BorderPane root = rootLoader.load();
+
+            factsLoader.setControllerFactory(param -> new MainApod(redisCacheService, gson, apodRepository));
+            AnchorPane factsAPOD = factsLoader.load();
+
+            root.setCenter(factsAPOD);
+
+            var scene = new Scene(root);
+            stage.setScene(scene);
+
+            stage.setHeight(MAIN_APOD_HEIGHT);
+            stage.setWidth(MAIN_APOD_WIDTH);
+
+            stage.show();
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    @FXML
+    public void seeSavesHandler(ActionEvent event) {
+        MenuItem menuItem = (MenuItem) event.getSource();
+
+        Stage stage = (Stage) menuItem.getParentPopup().getOwnerWindow();
+
+        try {
+            FXMLLoader rootLoader = new FXMLLoader();
+            rootLoader.setLocation(getClass().getResource("/fxml/root-apod.fxml"));
+
+            FXMLLoader factsLoader = new FXMLLoader();
+            factsLoader.setLocation(getClass().getResource("/fxml/saves-apod.fxml"));
+
+            BorderPane root = rootLoader.load();
+
+            factsLoader.setControllerFactory(param -> new SavesApod(redisCacheService, gson, apodRepository));
+            AnchorPane factsAPOD = factsLoader.load();
+
+            root.setCenter(factsAPOD);
+
+            var scene = new Scene(root);
+            stage.setScene(scene);
+
+            stage.setHeight(SAVES_APOD_HEIGHT);
+            stage.setWidth(SAVES_APOD_WIDTH);
+
+            stage.show();
+        } catch (Exception e) {
+            throw new RuntimeException(e);
         }
     }
 }

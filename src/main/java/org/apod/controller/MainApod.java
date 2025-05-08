@@ -11,6 +11,7 @@ import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
+import javafx.scene.control.MenuItem;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.AnchorPane;
@@ -32,6 +33,9 @@ public class MainApod {
     private final String APOD_KEY = "today:apod";
     private final int APOD_TTL = 3600;
 
+    private final int FACTS_APOD_WIDTH = 850;
+    private final int FACTS_APOD_HEIGHT = 600;
+
     private Gson gson;
     private RedisCacheService redisCacheService;
 
@@ -47,24 +51,20 @@ public class MainApod {
 
     @FXML
     public Label apodTitle;
-
     @FXML
     public Button fullscreenBtn;
-
     @FXML
     public ImageView todayApod;
-
     @FXML
     public WebView apodYtVideo;
-
     @FXML
     public Button factsBtn;
-
     @FXML
     public Button saveBtn;
-
     @FXML
     public Label saveActionToast;
+    @FXML
+    public MenuItem savesMenuItem;
 
     @FXML
     public void initialize() {
@@ -166,6 +166,10 @@ public class MainApod {
 
             var scene = new Scene(root);
             stage.setScene(scene);
+
+            stage.setHeight(FACTS_APOD_HEIGHT);
+            stage.setWidth(FACTS_APOD_WIDTH);
+
             stage.show();
         } catch (Exception e) {
             throw new RuntimeException(e);
@@ -186,6 +190,34 @@ public class MainApod {
                     throw new RuntimeException(e);
                 }
             }).start();
+        }
+    }
+
+    @FXML
+    public void seeSavesHandler(ActionEvent event) {
+        MenuItem menuItem = (MenuItem) event.getSource();
+
+        Stage stage = (Stage) menuItem.getParentPopup().getOwnerWindow();
+
+        try {
+            FXMLLoader rootLoader = new FXMLLoader();
+            rootLoader.setLocation(getClass().getResource("/fxml/root-apod.fxml"));
+
+            FXMLLoader factsLoader = new FXMLLoader();
+            factsLoader.setLocation(getClass().getResource("/fxml/saves-apod.fxml"));
+
+            BorderPane root = rootLoader.load();
+
+            factsLoader.setControllerFactory(param -> new SavesApod(redisCacheService, gson, repository));
+            AnchorPane factsAPOD = factsLoader.load();
+
+            root.setCenter(factsAPOD);
+
+            var scene = new Scene(root);
+            stage.setScene(scene);
+            stage.show();
+        } catch (Exception e) {
+            throw new RuntimeException(e);
         }
     }
 }

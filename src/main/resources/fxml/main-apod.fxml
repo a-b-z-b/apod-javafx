@@ -2,6 +2,8 @@
 
 <?import javafx.scene.control.Button?>
 <?import javafx.scene.control.Label?>
+<?import javafx.scene.control.MenuButton?>
+<?import javafx.scene.control.MenuItem?>
 <?import javafx.scene.image.Image?>
 <?import javafx.scene.image.ImageView?>
 <?import javafx.scene.layout.AnchorPane?>
@@ -33,7 +35,16 @@
       <Label fx:id="apodTitle" alignment="CENTER" contentDisplay="CENTER" layoutX="201.0" layoutY="286.0" prefHeight="50.0" prefWidth="298.0" text="Loading..." textAlignment="JUSTIFY" />
       <Button fx:id="factsBtn" layoutX="246.0" layoutY="348.0" mnemonicParsing="false" onAction="#seeFactsHandler" text="See Facts" />
       <Button fx:id="saveBtn" layoutX="386.0" layoutY="348.0" mnemonicParsing="false" onAction="#saveHandler" prefHeight="26.0" prefWidth="66.0" text="Save" />
-      <Button fx:id="burgerMenuBtn" layoutX="14.0" layoutY="14.0" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" mnemonicParsing="false" prefHeight="20.0" prefWidth="20.0">
+      <Label fx:id="saveActionToast" alignment="CENTER" contentDisplay="CENTER" layoutX="503.0" layoutY="16.0" prefHeight="18.0" prefWidth="182.0" text="Successfully Saved !" textAlignment="JUSTIFY" textFill="#0ed923" visible="false">
+         <font>
+            <Font name="System Bold" size="12.0" />
+         </font>
+      </Label>
+      <MenuButton fx:id="menuBtn" layoutX="14.0" layoutY="21.0" mnemonicParsing="false">
+        <items>
+          <MenuItem fx:id="savesMenuItem" mnemonicParsing="false" onAction="#seeSavesHandler" text="Saves" />
+          <MenuItem mnemonicParsing="false" text="Profile" />
+        </items>
          <graphic>
             <ImageView fitHeight="20.0" fitWidth="20.0" pickOnBounds="true" preserveRatio="true">
                <image>
@@ -41,11 +52,6 @@
                </image>
             </ImageView>
          </graphic>
-      </Button>
-      <Label fx:id="saveActionToast" alignment="CENTER" contentDisplay="CENTER" layoutX="503.0" layoutY="16.0" prefHeight="18.0" prefWidth="182.0" text="Successfully Saved !" textAlignment="JUSTIFY" textFill="#0ed923" visible="false">
-         <font>
-            <Font name="System Bold" size="12.0" />
-         </font>
-      </Label>
+      </MenuButton>
    </children>
 </AnchorPane>

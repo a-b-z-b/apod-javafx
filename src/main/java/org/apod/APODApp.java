@@ -19,6 +19,9 @@ import java.sql.Connection;
  * JavaFX App
  */
 public class APODApp extends Application {
+    private final int MAIN_APOD_WIDTH = 700;
+    private final int MAIN_APOD_HEIGHT = 500;
+
     private Stage stage;
     private BorderPane root;
 
@@ -67,6 +70,10 @@ public class APODApp extends Application {
             root = loader.load();
             var scene = new Scene(root);
             stage.setScene(scene);
+
+            stage.setHeight(MAIN_APOD_HEIGHT);
+            stage.setWidth(MAIN_APOD_WIDTH);
+
             stage.show();
         } catch (Exception e) {
             throw new RuntimeException(e);
