@@ -8,6 +8,8 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.text.SimpleDateFormat;
+import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -53,7 +55,41 @@ public class APODRepository implements Repository<APOD> {
 
     @Override
     public List<APOD> findAll() {
-        return List.of();
+        List<APOD> apods = new ArrayList<>();
+        String sql = """
+                        SELECT * FROM apod ORDER BY date DESC
+                     """;
+
+        try (PreparedStatement stmt = connection.prepareStatement(sql)){
+            ResultSet rs = stmt.executeQuery();
+
+            while (rs.next()) {
+                APOD apod = null;
+                if(rs.getString("media_type").equals("video")) {
+                    apod = new VideoAPOD(
+                            rs.getString("title"),
+                            rs.getString("explanation"),
+                            rs.getString("media_type"),
+                            new SimpleDateFormat("yyyy-MM-dd").parse(rs.getString("date")),
+                            rs.getString("url")
+                    );
+                } else {
+                    apod = new ImageAPOD(
+                            rs.getString("title"),
+                            rs.getString("explanation"),
+                            rs.getString("media_type"),
+                            new SimpleDateFormat("yyyy-MM-dd").parse(rs.getString("date")),
+                            rs.getString("copyright"),
+                            rs.getString("hdurl")
+                    );
+                }
+
+                apods.add(apod);
+            }
+        } catch (Exception e){
+            throw new RuntimeException(e);
+        }
+        return apods;
     }
 
     public boolean existsByDate(Date date) {

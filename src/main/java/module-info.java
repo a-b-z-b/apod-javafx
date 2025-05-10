@@ -5,6 +5,8 @@ module org.apod {
     requires java.net.http;
     requires redis.clients.jedis;
     requires org.xerial.sqlitejdbc;
+    requires com.google.errorprone.annotations;
+    requires gson.extras;
     exports org.apod;
     exports org.apod.controller;
     exports org.apod.model;

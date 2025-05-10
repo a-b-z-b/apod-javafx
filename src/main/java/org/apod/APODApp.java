@@ -44,6 +44,7 @@ public class APODApp extends Application {
         this.apodRepository = new APODRepository(this.connection);
 
         MigrationsRunner.runMigrations(connection, "/db/migrations/sqlite/init.sql");
+//        MigrationsRunner.runMigrations(connection, "/db/migrations/sqlite/seed.sql");
 
         initRootLayout();
 

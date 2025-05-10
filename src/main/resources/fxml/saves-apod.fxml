@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import javafx.scene.control.Label?>
 <?import javafx.scene.control.MenuButton?>
 <?import javafx.scene.control.MenuItem?>
+<?import javafx.scene.control.ScrollPane?>
 <?import javafx.scene.image.Image?>
 <?import javafx.scene.image.ImageView?>
 <?import javafx.scene.layout.AnchorPane?>
@@ -10,7 +10,6 @@
 
 <AnchorPane prefHeight="400.0" prefWidth="700.0" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.apod.controller.SavesApod">
    <children>
-      <Label layoutX="317.0" layoutY="191.0" text="HERE SAVES" />
       <MenuButton fx:id="menuBtn" layoutX="14.0" layoutY="14.0" mnemonicParsing="false">
          <items>
             <MenuItem fx:id="homeMenuItem" mnemonicParsing="false" onAction="#goHomeHandler" text="Home" />
@@ -24,5 +23,6 @@
             </ImageView>
          </graphic>
       </MenuButton>
+      <ScrollPane fx:id="scrollablePane" layoutY="57.0" prefHeight="700.0" prefWidth="900.0" />
    </children>
 </AnchorPane>

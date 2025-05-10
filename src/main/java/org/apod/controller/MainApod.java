@@ -35,6 +35,8 @@ public class MainApod {
 
     private final int FACTS_APOD_WIDTH = 850;
     private final int FACTS_APOD_HEIGHT = 600;
+    private final int SAVES_APOD_WIDTH = 900;
+    private final int SAVES_APOD_HEIGHT = 700;
 
     private Gson gson;
     private RedisCacheService redisCacheService;
@@ -215,6 +217,10 @@ public class MainApod {
 
             var scene = new Scene(root);
             stage.setScene(scene);
+
+            stage.setHeight(SAVES_APOD_HEIGHT);
+            stage.setWidth(SAVES_APOD_WIDTH);
+
             stage.show();
         } catch (Exception e) {
             throw new RuntimeException(e);
