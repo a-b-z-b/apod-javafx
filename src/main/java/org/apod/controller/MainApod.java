@@ -25,12 +25,16 @@ import org.apod.repository.APODRepository;
 import org.apod.service.RedisCacheService;
 
 import java.net.URI;
+import java.net.URL;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 
 public class MainApod {
     private final String APOD_KEY = "today:apod";
+    private final String LOADER_KEY = "loader:apod";
     private final int APOD_TTL = 3600;
 
     private final int FACTS_APOD_WIDTH = 850;
@@ -67,13 +71,28 @@ public class MainApod {
     public Label saveActionToast;
     @FXML
     public MenuItem savesMenuItem;
+    @FXML
+    public WebView loader;
 
     @FXML
     public void initialize() {
         String todayApodJson = redisCacheService.get(APOD_KEY);
 
+        String loaderMarkup = null;
+        if(redisCacheService.get(LOADER_KEY) != null) {
+            loaderMarkup = redisCacheService.get(LOADER_KEY);
+        } else {
+            loaderMarkup = this.loadHtmlToString("loader.html");
+            redisCacheService.set(LOADER_KEY, loaderMarkup, APOD_TTL);
+        }
+
+        loader.getEngine().setUserStyleSheetLocation(getClass().getResource("/html/loader.css").toExternalForm());
+        loader.getEngine().loadContent(loaderMarkup, "text/html");
+
         saveBtn.setVisible(false);
         factsBtn.setVisible(false);
+        apodTitle.setVisible(false);
+        fullscreenBtn.setVisible(false);
 
         if(todayApodJson != null) {
             renderApod(todayApodJson);
@@ -98,6 +117,16 @@ public class MainApod {
                         return null;
                     });
         }
+
+        new Thread(() -> {
+            try {
+                Thread.sleep(9000);
+                loader.setVisible(false);
+                apodTitle.setVisible(true);
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            }
+        }).start();
     }
 
     public void renderApod(String json) {
@@ -118,6 +147,7 @@ public class MainApod {
                     String ytEmbeddedVideo = vAPOD.getUrl() + "&autoplay=1&mute=1&loop=1";
                     apodYtVideo.getEngine().load(ytEmbeddedVideo);
                     apodYtVideo.setVisible(true);
+
                     break;
                 case "image":
                     ImageAPOD iAPOD = gson.fromJson(json, ImageAPOD.class);
@@ -126,7 +156,9 @@ public class MainApod {
                     apodYtVideo.setVisible(false);
                     todayApod.setImage(new Image(iAPOD.getHdurl()));
                     todayApod.setVisible(true);
+                    fullscreenBtn.setVisible(true);
                     apodTitle.setText(iAPOD.getTitle());
+
                     break;
                 default:
                     apodTitle.setText("Unsupported media type.");
@@ -141,8 +173,8 @@ public class MainApod {
 
             factsBtn.setVisible(true);
             if (!saveBtn.isVisible()) {
-                factsBtn.setLayoutX(317);
-                factsBtn.setLayoutY(348);
+                factsBtn.setLayoutX(310);
+                factsBtn.setLayoutY(542);
             }
         });
     }
@@ -222,6 +254,18 @@ public class MainApod {
             stage.setWidth(SAVES_APOD_WIDTH);
 
             stage.show();
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    protected String loadHtmlToString(String path) {
+        try {
+            URL markupPath = getClass().getResource("/html/" + path);
+            if (markupPath == null) {
+                throw new RuntimeException("Could not find html file: " + path);
+            }
+            return Files.readString(Paths.get(markupPath.toURI()));
         } catch (Exception e) {
             throw new RuntimeException(e);
         }

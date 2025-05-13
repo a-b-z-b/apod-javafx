@@ -1,0 +1,19 @@
+@font-face {
+    font-family: "Everett Black";
+    src: url("../fonts/TWKEverett-Black.otf");
+}
+
+@font-face {
+    font-family: "Everett Bold";
+    src: url("../fonts/TWKEverett-Bold.otf");
+}
+
+@font-face {
+    font-family: "Everett BoldItalic";
+    src: url("../fonts/TWKEverett-BoldItalic.otf");
+}
+
+@font-face {
+    font-family: "Everett Regular";
+    src: url("../fonts/TWKEverett-Regular.otf");
+}

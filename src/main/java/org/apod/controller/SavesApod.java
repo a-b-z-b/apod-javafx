@@ -30,7 +30,7 @@ public class SavesApod {
     private final int APOD_TTL = 3600;
 
     private final int MAIN_APOD_WIDTH = 700;
-    private final int MAIN_APOD_HEIGHT = 500;
+    private final int MAIN_APOD_HEIGHT = 700;
 
     private Gson gson;
     private RedisCacheService redisCacheService;
@@ -99,8 +99,6 @@ public class SavesApod {
         grid.prefWidthProperty().bind(scrollablePane.widthProperty());
         grid.prefHeightProperty().bind(scrollablePane.heightProperty());
 
-        apods.forEach(System.out::println);
-
         scrollablePane.setContent(grid);
     }
 
@@ -125,6 +123,8 @@ public class SavesApod {
             root.setCenter(factsAPOD);
 
             var scene = new Scene(root);
+            scene.getStylesheets().add(getClass().getResource("/css/main-apod.css").toExternalForm());
+
             stage.setScene(scene);
 
             stage.setHeight(MAIN_APOD_HEIGHT);

@@ -5,6 +5,7 @@ import javafx.application.Application;
 import javafx.scene.Scene;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.BorderPane;
+import javafx.scene.text.Font;
 import javafx.stage.Stage;
 import javafx.fxml.FXMLLoader;
 import org.apod.controller.MainApod;
@@ -20,7 +21,7 @@ import java.sql.Connection;
  */
 public class APODApp extends Application {
     private final int MAIN_APOD_WIDTH = 700;
-    private final int MAIN_APOD_HEIGHT = 500;
+    private final int MAIN_APOD_HEIGHT = 700;
 
     private Stage stage;
     private BorderPane root;
@@ -71,6 +72,8 @@ public class APODApp extends Application {
             root = loader.load();
             var scene = new Scene(root);
             stage.setScene(scene);
+
+            scene.getStylesheets().add(getClass().getResource("/css/main-apod.css").toExternalForm());
 
             stage.setHeight(MAIN_APOD_HEIGHT);
             stage.setWidth(MAIN_APOD_WIDTH);
