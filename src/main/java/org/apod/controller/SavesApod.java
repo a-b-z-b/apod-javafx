@@ -73,20 +73,20 @@ public class SavesApod {
             redisCacheService.set(APOD_KEY, jsonAPODS, APOD_TTL);
         }
 
-        for (int i = 0; i < apods.size(); i++) {
+        for (APOD apod : apods) {
             double height = 100 + (Math.random() * 100);
 
-            if (apods.get(i) instanceof VideoAPOD) {
+            if (apod instanceof VideoAPOD) {
                 WebView wv = new WebView();
-                wv.getEngine().load(((VideoAPOD) apods.get(i)).getUrl());
+                wv.getEngine().load(((VideoAPOD) apod).getUrl());
 
                 wv.setPrefHeight(height);
 //                wv.setStyle("-fx-border-radius: 25px;");
                 grid.getChildren().add(wv);
-            } else if (apods.get(i) instanceof ImageAPOD) {
+            } else if (apod instanceof ImageAPOD) {
                 ImageView iv = new ImageView();
 
-                iv.setImage(new Image(((ImageAPOD) apods.get(i)).getHdurl()));
+                iv.setImage(new Image(((ImageAPOD) apod).getHdurl()));
 
                 iv.setFitHeight(height);
                 iv.setPreserveRatio(true);
@@ -94,6 +94,9 @@ public class SavesApod {
                 grid.getChildren().add(iv);
             }
         }
+
+        scrollablePane.getStyleClass().add("scroll-pane");
+        grid.getStyleClass().add("staggered-grid");
 
         // Size binding to make it responsive
         grid.prefWidthProperty().bind(scrollablePane.widthProperty());

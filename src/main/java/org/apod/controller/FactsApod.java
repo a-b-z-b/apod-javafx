@@ -50,8 +50,8 @@ public class FactsApod {
 
     private final int MAIN_APOD_WIDTH = 700;
     private final int MAIN_APOD_HEIGHT = 700;
-    private final int SAVES_APOD_WIDTH = 900;
-    private final int SAVES_APOD_HEIGHT = 700;
+    private final int SAVES_APOD_WIDTH = 950;
+    private final int SAVES_APOD_HEIGHT = 900;
 
     private APOD theMainApod;
 
@@ -221,6 +221,8 @@ public class FactsApod {
             root.setCenter(factsAPOD);
 
             var scene = new Scene(root);
+            scene.getStylesheets().add(getClass().getResource("/css/saves-apod.css").toExternalForm());
+
             stage.setScene(scene);
 
             stage.setHeight(SAVES_APOD_HEIGHT);

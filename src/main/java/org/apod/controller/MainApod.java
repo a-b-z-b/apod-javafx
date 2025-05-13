@@ -39,8 +39,8 @@ public class MainApod {
 
     private final int FACTS_APOD_WIDTH = 850;
     private final int FACTS_APOD_HEIGHT = 600;
-    private final int SAVES_APOD_WIDTH = 900;
-    private final int SAVES_APOD_HEIGHT = 700;
+    private final int SAVES_APOD_WIDTH = 950;
+    private final int SAVES_APOD_HEIGHT = 900;
 
     private Gson gson;
     private RedisCacheService redisCacheService;
@@ -250,6 +250,8 @@ public class MainApod {
             root.setCenter(factsAPOD);
 
             var scene = new Scene(root);
+            scene.getStylesheets().add(getClass().getResource("/css/saves-apod.css").toExternalForm());
+
             stage.setScene(scene);
 
             stage.setHeight(SAVES_APOD_HEIGHT);
