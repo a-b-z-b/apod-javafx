@@ -42,8 +42,11 @@ public class FactsApod {
     public Button saveBtn;
     @FXML
     public AnchorPane factsPane;
+    @FXML
+    public WebView loader;
 
     private final String APOD_KEY = "today:apod";
+    private final String LOADER_KEY = "loader:apod";
 
     private final int MAIN_APOD_WIDTH = 700;
     private final int MAIN_APOD_HEIGHT = 700;
@@ -66,9 +69,22 @@ public class FactsApod {
     public void initialize() {
         String todayApodJson = redisCacheService.get(APOD_KEY);
 
+        String loaderMarkup = redisCacheService.get(LOADER_KEY);
+        loader.getEngine().setUserStyleSheetLocation(getClass().getResource("/html/loader.css").toExternalForm());
+        loader.getEngine().loadContent(loaderMarkup, "text/html");
+
         saveBtn.setVisible(false);
 
         renderApod(todayApodJson);
+
+        new Thread(() -> {
+            try {
+                Thread.sleep(9000);
+                loader.setVisible(false);
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            }
+        }).start();
     }
 
     public void renderApod(String json) {

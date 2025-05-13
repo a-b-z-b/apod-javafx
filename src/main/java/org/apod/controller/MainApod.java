@@ -204,6 +204,8 @@ public class MainApod {
             stage.setHeight(FACTS_APOD_HEIGHT);
             stage.setWidth(FACTS_APOD_WIDTH);
 
+            scene.getStylesheets().add(getClass().getResource("/css/facts-apod.css").toExternalForm());
+
             stage.show();
         } catch (Exception e) {
             throw new RuntimeException(e);

@@ -7,22 +7,17 @@
 }
 
 .label {
-    -fx-font-family: "TWKEverett-Bold", "Lucida Console";
-    -fx-text-fill: #fff;
+    -fx-text-fill: #0abc10;
 }
 
-#apodTitle {
-    -fx-text-fill: #0abc10;
+#cpRightPhotographer, #dateAPOD, #explanationAPOD, #titleAPOD {
+    -fx-font-family: "TWKEverett-Bold", "Lucida Console";
+    -fx-text-fill: #fff;
 }
 
 .button {
     -fx-background-color: #fff;
     -fx-text-fill: #242424;
     -fx-font-family: "TWKEverett-Bold", "Lucida Console";
-    -fx-padding: 15px;
-}
-
-.full-screen-btn {
-    -fx-background-color: #cdc9c9;
-    -fx-padding: 15px;
+    -fx-padding: 10px 15px;
 }
