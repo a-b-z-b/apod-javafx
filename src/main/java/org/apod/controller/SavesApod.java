@@ -48,7 +48,7 @@ public class SavesApod {
         this.redisCacheService = redisCacheService;
         this.gson = new GsonBuilder()
                 .registerTypeAdapterFactory(adapterFactory)
-                .create();;
+                .create();
         this.apodRepository = apodRepository;
     }
 

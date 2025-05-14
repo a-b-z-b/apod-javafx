@@ -1,8 +1,7 @@
 package org.apod.controller;
 
 import com.google.gson.Gson;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
+import com.google.gson.reflect.TypeToken;
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -130,41 +129,29 @@ public class MainApod {
     }
 
     public void renderApod(String json) {
-        JsonObject obj = JsonParser.parseString(json).getAsJsonObject();
-        String mediaType = obj.get("media_type").getAsString();
 
         Platform.runLater(() -> {
+            APOD apod = gson.fromJson(json, new TypeToken<APOD>() {}.getType());
+            theMainApod = apod;
 
-            switch (mediaType) {
-                case "video":
-                    VideoAPOD vAPOD = gson.fromJson(json, VideoAPOD.class);
-                    theMainApod = vAPOD;
-
-                    apodTitle.setText(vAPOD.getTitle());
-                    fullscreenBtn.setVisible(true);
-                    todayApod.setVisible(false);
-                    fullscreenBtn.setVisible(false);
-                    String ytEmbeddedVideo = vAPOD.getUrl() + "&autoplay=1&mute=1&loop=1";
-                    apodYtVideo.getEngine().load(ytEmbeddedVideo);
-                    apodYtVideo.setVisible(true);
-
-                    break;
-                case "image":
-                    ImageAPOD iAPOD = gson.fromJson(json, ImageAPOD.class);
-                    theMainApod = iAPOD;
-
-                    apodYtVideo.setVisible(false);
-                    todayApod.setImage(new Image(iAPOD.getHdurl()));
-                    todayApod.setVisible(true);
-                    fullscreenBtn.setVisible(true);
-                    apodTitle.setText(iAPOD.getTitle());
-
-                    break;
-                default:
-                    apodTitle.setText("Unsupported media type.");
-                    todayApod.setVisible(false);
-                    apodYtVideo.setVisible(false);
-                    break;
+            if (apod instanceof VideoAPOD) {
+                apodTitle.setText(apod.getTitle());
+                fullscreenBtn.setVisible(true);
+                todayApod.setVisible(false);
+                fullscreenBtn.setVisible(false);
+                String ytEmbeddedVideo = ((VideoAPOD) apod).getUrl() + "&autoplay=1&mute=1&loop=1";
+                apodYtVideo.getEngine().load(ytEmbeddedVideo);
+                apodYtVideo.setVisible(true);
+            } else if(apod instanceof ImageAPOD) {
+                apodYtVideo.setVisible(false);
+                todayApod.setImage(new Image(((ImageAPOD) apod).getHdurl()));
+                todayApod.setVisible(true);
+                fullscreenBtn.setVisible(true);
+                apodTitle.setText(apod.getTitle());
+            } else {
+                apodTitle.setText("Unsupported media type.");
+                todayApod.setVisible(false);
+                apodYtVideo.setVisible(false);
             }
 
             if(!repository.existsByDate(theMainApod.getDate())){

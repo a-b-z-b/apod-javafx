@@ -1,16 +1,20 @@
 package org.apod;
 
 import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.typeadapters.RuntimeTypeAdapterFactory;
 import javafx.application.Application;
 import javafx.scene.Scene;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.BorderPane;
-import javafx.scene.text.Font;
 import javafx.stage.Stage;
 import javafx.fxml.FXMLLoader;
 import org.apod.controller.MainApod;
 import org.apod.data.DBConnection;
 import org.apod.data.MigrationsRunner;
+import org.apod.model.APOD;
+import org.apod.model.ImageAPOD;
+import org.apod.model.VideoAPOD;
 import org.apod.repository.APODRepository;
 import org.apod.service.RedisCacheService;
 
@@ -28,6 +32,7 @@ public class APODApp extends Application {
 
     private RedisCacheService cacheService;
     private Gson gson;
+    private RuntimeTypeAdapterFactory<APOD> adapterFactory;
     private APODRepository apodRepository;
 
     private Connection connection;
@@ -38,7 +43,13 @@ public class APODApp extends Application {
         this.stage.setTitle("Astronomy Picture Of the Day");
 
         this.cacheService = new RedisCacheService("localhost", 6379);
-        this.gson = new Gson();
+        this.adapterFactory = RuntimeTypeAdapterFactory
+                .of(APOD.class, "media_type")
+                .registerSubtype(ImageAPOD.class, "image")
+                .registerSubtype(VideoAPOD.class, "video");
+        this.gson = new GsonBuilder()
+                .registerTypeAdapterFactory(adapterFactory)
+                .create();
 
         this.connection = DBConnection.getConnection("sqlite");
 

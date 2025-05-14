@@ -1,8 +1,7 @@
 package org.apod.controller;
 
 import com.google.gson.Gson;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
+import com.google.gson.reflect.TypeToken;
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -93,54 +92,41 @@ public class FactsApod {
             return;
         }
 
-        JsonObject obj = JsonParser.parseString(json).getAsJsonObject();
-        String mediaType = obj.get("media_type").getAsString();
-
         Platform.runLater(() -> {
+            APOD apod = gson.fromJson(json, new TypeToken<APOD>() {}.getType());
+            theMainApod = apod;
 
-            switch (mediaType) {
-                case "video":
-                    VideoAPOD vAPOD = gson.fromJson(json, VideoAPOD.class);
-                    theMainApod = vAPOD;
+            if (apod instanceof VideoAPOD) {
+                apodImage.setVisible(false);
 
-                    apodImage.setVisible(false);
+                titleAPOD.setText(apod.getTitle());
+                String ytEmbeddedVideo = ((VideoAPOD) apod).getUrl() + "&autoplay=1&mute=1&loop=1";
 
-                    titleAPOD.setText(vAPOD.getTitle());
-                    String ytEmbeddedVideo = vAPOD.getUrl() + "&autoplay=1&mute=1&loop=1";
+                apodYtVideo.getEngine().load(ytEmbeddedVideo);
+                apodYtVideo.setVisible(true);
 
-                    apodYtVideo.getEngine().load(ytEmbeddedVideo);
-                    apodYtVideo.setVisible(true);
+                cpRightPhotographer.setText("APOD NASA API.");
+                explanationAPOD.setText(apod.getExplanation());
+                dateAPOD.setText(new SimpleDateFormat("yyyy-MM-dd").format(apod.getDate()));
+            } else if(apod instanceof ImageAPOD) {
+                apodYtVideo.setVisible(false);
 
+                if (((ImageAPOD) apod).getCopyright() != null) {
+                    cpRightPhotographer.setText(((ImageAPOD) apod).getCopyright().trim());
+                } else {
                     cpRightPhotographer.setText("APOD NASA API.");
-                    explanationAPOD.setText(vAPOD.getExplanation());
-                    dateAPOD.setText(new SimpleDateFormat("yyyy-MM-dd").format(vAPOD.getDate()));
+                }
 
-                    break;
-                case "image":
-                    ImageAPOD iAPOD = gson.fromJson(json, ImageAPOD.class);
-                    theMainApod = iAPOD;
+                apodImage.setImage(new Image(((ImageAPOD) apod).getHdurl()));
+                apodImage.setVisible(true);
 
-                    apodYtVideo.setVisible(false);
-
-                    if (iAPOD.getCopyright() != null) {
-                        cpRightPhotographer.setText(iAPOD.getCopyright().trim());
-                    } else {
-                        cpRightPhotographer.setText("APOD NASA API.");
-                    }
-
-                    apodImage.setImage(new Image(iAPOD.getHdurl()));
-                    apodImage.setVisible(true);
-
-                    titleAPOD.setText(iAPOD.getTitle());
-                    explanationAPOD.setText(iAPOD.getExplanation().trim());
-                    dateAPOD.setText(new SimpleDateFormat("yyyy-MM-dd").format(iAPOD.getDate()));
-
-                    break;
-                default:
-                    titleAPOD.setText("Unsupported media type.");
-                    apodImage.setVisible(false);
-                    apodYtVideo.setVisible(false);
-                    break;
+                titleAPOD.setText(apod.getTitle());
+                explanationAPOD.setText(apod.getExplanation().trim());
+                dateAPOD.setText(new SimpleDateFormat("yyyy-MM-dd").format(apod.getDate()));
+            } else {
+                titleAPOD.setText("Unsupported media type.");
+                apodImage.setVisible(false);
+                apodYtVideo.setVisible(false);
             }
 
             if(!apodRepository.existsByDate(theMainApod.getDate())){
