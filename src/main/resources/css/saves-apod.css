@@ -4,21 +4,22 @@
     -fx-background-color: #242424;
 }
 
-.scroll-pane {
+#staggered-grid, #scrollablePane {
     -fx-background-color: #242424;
+
 }
 
-.staggered-grid {
-    -fx-padding: 10;
-    -fx-background-color: #f5f5f5;
-}
+/*.staggered-grid {*/
+/*    -fx-padding: 10;*/
+/*    -fx-background-color: #f5f5f5;*/
+/*}*/
 
-.web-view .image-view {
-/*.staggered-grid .grid-item {*/
-    -fx-background-color: #ffffff;
-    -fx-border-color: #cccccc;
-    -fx-border-width: 1;
-    -fx-padding: 8;
-    -fx-border-radius: 25px;
-    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.2), 4, 0.5, 0, 2);
-}
+/*.web-view .image-view {*/
+/*!*.staggered-grid .grid-item {*!*/
+/*    -fx-background-color: #ffffff;*/
+/*    -fx-border-color: #cccccc;*/
+/*    -fx-border-width: 1;*/
+/*    -fx-padding: 8;*/
+/*    -fx-border-radius: 25px;*/
+/*    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.2), 4, 0.5, 0, 2);*/
+/*}*/

@@ -56,9 +56,8 @@ public class SavesApod {
     public void initialize() {
         StaggeredGridPane grid = new StaggeredGridPane(3, 100);
 
-        scrollablePane.setFitToWidth(true);
-        scrollablePane.setHbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
-        scrollablePane.setVbarPolicy(ScrollPane.ScrollBarPolicy.ALWAYS);
+//        scrollablePane.setHbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
+//        scrollablePane.setVbarPolicy(ScrollPane.ScrollBarPolicy.ALWAYS);
 
         List<APOD> apods = null;
 
@@ -95,12 +94,13 @@ public class SavesApod {
             }
         }
 
-        scrollablePane.getStyleClass().add("scroll-pane");
-        grid.getStyleClass().add("staggered-grid");
+//        scrollablePane.getStyleClass().add("scroll-pane");
+//        grid.getStyleClass().add("staggered-grid");
+        grid.setId("staggered-grid");
 
         // Size binding to make it responsive
-        grid.prefWidthProperty().bind(scrollablePane.widthProperty());
-        grid.prefHeightProperty().bind(scrollablePane.heightProperty());
+//        grid.prefWidthProperty().bind(scrollablePane.widthProperty());
+//        grid.prefHeightProperty().bind(scrollablePane.heightProperty());
 
         scrollablePane.setContent(grid);
     }
