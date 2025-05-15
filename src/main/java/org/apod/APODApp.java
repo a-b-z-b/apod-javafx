@@ -4,9 +4,11 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.typeadapters.RuntimeTypeAdapterFactory;
 import javafx.application.Application;
+import javafx.application.Platform;
 import javafx.scene.Scene;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.BorderPane;
+import javafx.scene.web.WebView;
 import javafx.stage.Stage;
 import javafx.fxml.FXMLLoader;
 import org.apod.controller.MainApod;
@@ -18,6 +20,7 @@ import org.apod.model.VideoAPOD;
 import org.apod.repository.APODRepository;
 import org.apod.service.RedisCacheService;
 
+import java.lang.foreign.PaddingLayout;
 import java.sql.Connection;
 
 /**

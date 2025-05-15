@@ -4,10 +4,13 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
 import com.google.gson.typeadapters.RuntimeTypeAdapterFactory;
+import javafx.application.Platform;
+import javafx.concurrent.Task;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
+import javafx.scene.control.Label;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.image.Image;
@@ -26,6 +29,7 @@ import org.apod.service.RedisCacheService;
 import java.util.List;
 
 public class SavesApod {
+    private final String LOADER_KEY = "loader:apod";
     private final String APOD_KEY = "list:apod";
     private final int APOD_TTL = 3600;
 
@@ -54,55 +58,61 @@ public class SavesApod {
 
     @FXML
     public void initialize() {
-        StaggeredGridPane grid = new StaggeredGridPane(3, 100);
+        Task<List<APOD>> loadSavesWithUI = new Task<>() {
+            @Override
+            protected List<APOD> call() {
+                List<APOD> apods = null;
 
-//        scrollablePane.setHbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
-//        scrollablePane.setVbarPolicy(ScrollPane.ScrollBarPolicy.ALWAYS);
+                if (redisCacheService.get(APOD_KEY) != null) {
+                    System.out.println("CACHE HIT");
+                    String json = redisCacheService.get(APOD_KEY);
+                    apods = gson.fromJson(json, new TypeToken<List<APOD>>() {}.getType());
+                } else {
+                    System.out.println("CACHE MISS");
+                    apods = apodRepository.findAll();
+                    String jsonAPODS = gson.toJson(apods);
+                    redisCacheService.set(APOD_KEY, jsonAPODS, APOD_TTL);
+                }
 
-        List<APOD> apods = null;
-
-        if (redisCacheService.get(APOD_KEY) != null) {
-            System.out.println("CACHE HIT");
-            String json = redisCacheService.get(APOD_KEY);
-            apods = gson.fromJson(json, new TypeToken<List<APOD>>() {}.getType());
-        } else {
-            System.out.println("CACHE MISS");
-            apods = apodRepository.findAll();
-            String jsonAPODS = this.gson.toJson(apods);
-            redisCacheService.set(APOD_KEY, jsonAPODS, APOD_TTL);
-        }
-
-        for (APOD apod : apods) {
-            double height = 100 + (Math.random() * 100);
-
-            if (apod instanceof VideoAPOD) {
-                WebView wv = new WebView();
-                wv.getEngine().load(((VideoAPOD) apod).getUrl());
-
-                wv.setPrefHeight(height);
-//                wv.setStyle("-fx-border-radius: 25px;");
-                grid.getChildren().add(wv);
-            } else if (apod instanceof ImageAPOD) {
-                ImageView iv = new ImageView();
-
-                iv.setImage(new Image(((ImageAPOD) apod).getHdurl()));
-
-                iv.setFitHeight(height);
-                iv.setPreserveRatio(true);
-//                iv.setStyle("-fx-border-radius: 25px;");
-                grid.getChildren().add(iv);
+                return apods;
             }
-        }
+        };
 
-//        scrollablePane.getStyleClass().add("scroll-pane");
-//        grid.getStyleClass().add("staggered-grid");
-        grid.setId("staggered-grid");
+        loadSavesWithUI.setOnSucceeded(event -> {
+            List<APOD> apods = loadSavesWithUI.getValue();
 
-        // Size binding to make it responsive
-//        grid.prefWidthProperty().bind(scrollablePane.widthProperty());
-//        grid.prefHeightProperty().bind(scrollablePane.heightProperty());
+            StaggeredGridPane grid = new StaggeredGridPane(3, 100);
+            grid.setId("staggered-grid");
 
-        scrollablePane.setContent(grid);
+            for (APOD apod : apods) {
+                double height = 100 + (Math.random() * 100);
+
+                if (apod instanceof VideoAPOD) {
+                    Platform.runLater(() -> {
+                        WebView wv = new WebView();
+                        wv.getEngine().load(((VideoAPOD) apod).getUrl());
+
+                        wv.setPrefHeight(height);
+                        grid.getChildren().add(wv);
+                    });
+                } else if (apod instanceof ImageAPOD) {
+                    ImageView iv = new ImageView();
+
+                    iv.setImage(new Image(((ImageAPOD) apod).getHdurl(), true)); // HERE THE SECRET IS THE BOOLEAN! "async load"
+
+                    iv.setFitHeight(height);
+                    iv.setPreserveRatio(true);
+                    grid.getChildren().add(iv);
+                }
+            }
+            scrollablePane.setContent(grid);
+        });
+        loadSavesWithUI.setOnFailed(event -> {
+            scrollablePane.setContent(new Label("Failed to load APODs."));
+            loadSavesWithUI.getException().printStackTrace();
+        });
+
+        new Thread(loadSavesWithUI).start();
     }
 
     @FXML
