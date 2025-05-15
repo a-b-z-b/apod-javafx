@@ -12,25 +12,16 @@
 
 <AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="700.0" prefWidth="700.0" stylesheets="@../css/main-apod.css" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.apod.controller.MainApod">
    <children>
-      <Button fx:id="fullscreenBtn" layoutX="526.0" layoutY="165.0" maxHeight="50.0" maxWidth="60.0" minHeight="14.0" minWidth="14.0" mnemonicParsing="false" prefHeight="37.0" prefWidth="40.0" styleClass="full-screen-btn">
-         <graphic>
-            <ImageView fitHeight="37.0" fitWidth="36.0" pickOnBounds="true" preserveRatio="true">
-               <image>
-                  <Image url="@../assets/fullscreen.png" />
-               </image>
-            </ImageView>
-         </graphic>
-      </Button>
-      <Label layoutX="286.0" layoutY="60.0" text="Today's Picture" />
-      <ImageView fx:id="todayApod" fitHeight="271.0" fitWidth="346.0" layoutX="190.0" layoutY="164.0" pickOnBounds="true" preserveRatio="true" />
-      <Label fx:id="apodTitle" alignment="CENTER" contentDisplay="CENTER" layoutX="174.0" layoutY="465.0" prefHeight="38.0" prefWidth="339.0" text="Loading..." textAlignment="JUSTIFY" />
-      <Button fx:id="factsBtn" layoutX="230.0" layoutY="543.0" mnemonicParsing="false" onAction="#seeFactsHandler" text="See Facts" />
-      <Button fx:id="saveBtn" layoutX="370.0" layoutY="543.0" mnemonicParsing="false" onAction="#saveHandler" prefHeight="26.0" prefWidth="66.0" text="Save" />
-      <Label fx:id="saveActionToast" alignment="CENTER" contentDisplay="CENTER" layoutX="503.0" layoutY="16.0" prefHeight="18.0" prefWidth="182.0" text="Successfully Saved !" textAlignment="JUSTIFY" textFill="#0ed923" visible="false">
+      <Label fx:id="saveActionToast" alignment="CENTER" contentDisplay="CENTER" layoutX="503.0" layoutY="66.0" prefHeight="18.0" prefWidth="136.0" text="Successfully Saved !" textAlignment="JUSTIFY" textFill="#0ed923" visible="false">
          <font>
             <Font name="System Bold" size="12.0" />
          </font>
       </Label>
+      <Label layoutX="315.0" layoutY="66.0" text="Today's Picture" />
+      <ImageView fx:id="todayApod" fitHeight="271.0" fitWidth="346.0" layoutX="190.0" layoutY="164.0" pickOnBounds="true" preserveRatio="true" />
+      <Label fx:id="apodTitle" alignment="CENTER" contentDisplay="CENTER" layoutX="196.0" layoutY="465.0" prefHeight="38.0" prefWidth="339.0" text="Loading..." textAlignment="JUSTIFY" />
+      <Button fx:id="factsBtn" layoutX="260.0" layoutY="542.0" mnemonicParsing="false" onAction="#seeFactsHandler" text="See Facts" />
+      <Button fx:id="saveBtn" layoutX="400.0" layoutY="542.0" mnemonicParsing="false" onAction="#saveHandler" prefHeight="26.0" prefWidth="66.0" text="Save" />
       <MenuButton fx:id="menuBtn" layoutX="14.0" layoutY="60.0" mnemonicParsing="false">
         <items>
           <MenuItem fx:id="savesMenuItem" mnemonicParsing="false" onAction="#seeSavesHandler" text="Saves" />
@@ -44,7 +35,16 @@
             </ImageView>
          </graphic>
       </MenuButton>
-      <WebView fx:id="apodYtVideo" layoutX="170.0" layoutY="198.0" prefHeight="204.0" prefWidth="346.0" />
+      <WebView fx:id="apodYtVideo" layoutX="178.0" layoutY="198.0" prefHeight="204.0" prefWidth="346.0" />
+      <Button fx:id="fullscreenBtn" layoutX="513.0" layoutY="416.0" maxHeight="50.0" maxWidth="60.0" minHeight="14.0" minWidth="14.0" mnemonicParsing="false" prefHeight="18.0" prefWidth="20.0" styleClass="full-screen-btn">
+         <graphic>
+            <ImageView fitHeight="20.0" fitWidth="23.0" pickOnBounds="true" preserveRatio="true">
+               <image>
+                  <Image url="@../assets/fullscreen.png" />
+               </image>
+            </ImageView>
+         </graphic>
+      </Button>
       <WebView fx:id="loader" layoutX="15.0" layoutY="140.0" prefHeight="514.0" prefWidth="671.0" />
    </children>
 </AnchorPane>

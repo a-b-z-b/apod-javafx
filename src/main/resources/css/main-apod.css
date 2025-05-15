@@ -15,6 +15,10 @@
     -fx-text-fill: #0abc10;
 }
 
+#saveActionToast {
+    -fx-font-family: "TWKEverett-BoldItalic", "Lucida Console";
+}
+
 .button {
     -fx-background-color: #fff;
     -fx-text-fill: #242424;
