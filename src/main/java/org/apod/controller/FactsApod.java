@@ -3,6 +3,7 @@ package org.apod.controller;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import javafx.application.Platform;
+import javafx.concurrent.Worker;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -75,15 +76,6 @@ public class FactsApod {
         saveBtn.setVisible(false);
 
         renderApod(todayApodJson);
-
-        new Thread(() -> {
-            try {
-                Thread.sleep(9000);
-                loader.setVisible(false);
-            } catch (Exception e) {
-                throw new RuntimeException(e);
-            }
-        }).start();
     }
 
     public void renderApod(String json) {
@@ -96,14 +88,21 @@ public class FactsApod {
             APOD apod = gson.fromJson(json, new TypeToken<APOD>() {}.getType());
             theMainApod = apod;
 
+            titleAPOD.setText(apod.getTitle());
+
             if (apod instanceof VideoAPOD) {
                 apodImage.setVisible(false);
 
-                titleAPOD.setText(apod.getTitle());
                 String ytEmbeddedVideo = ((VideoAPOD) apod).getUrl() + "&autoplay=1&mute=1&loop=1";
 
+                apodYtVideo.getEngine().getLoadWorker().stateProperty().addListener((observable, oldValue, newValue) -> {
+                    if (newValue == Worker.State.SUCCEEDED) {
+                        loader.setVisible(false);// HIDE LOADER when video is fully loaded
+                        apodYtVideo.setVisible(true);
+                    }
+                });
+
                 apodYtVideo.getEngine().load(ytEmbeddedVideo);
-                apodYtVideo.setVisible(true);
 
                 cpRightPhotographer.setText("APOD NASA API.");
                 explanationAPOD.setText(apod.getExplanation());
@@ -117,16 +116,24 @@ public class FactsApod {
                     cpRightPhotographer.setText("APOD NASA API.");
                 }
 
-                apodImage.setImage(new Image(((ImageAPOD) apod).getHdurl()));
-                apodImage.setVisible(true);
+                Image image = new Image(((ImageAPOD) apod).getHdurl(), true);// true = background load
 
-                titleAPOD.setText(apod.getTitle());
+                image.progressProperty().addListener((observable, oldValue, newValue) -> {
+                    if (newValue.doubleValue() >= 1.0) {
+                        loader.setVisible(false); // HIDE LOADER when image is fully loaded
+                        apodImage.setVisible(true);
+                    }
+                });
+
+                apodImage.setImage(image);
+
                 explanationAPOD.setText(apod.getExplanation().trim());
                 dateAPOD.setText(new SimpleDateFormat("yyyy-MM-dd").format(apod.getDate()));
             } else {
                 titleAPOD.setText("Unsupported media type.");
                 apodImage.setVisible(false);
                 apodYtVideo.setVisible(false);
+                loader.setVisible(false);
             }
 
             if(!apodRepository.existsByDate(theMainApod.getDate())){
@@ -162,13 +169,13 @@ public class FactsApod {
             FXMLLoader rootLoader = new FXMLLoader();
             rootLoader.setLocation(getClass().getResource("/fxml/root-apod.fxml"));
 
-            FXMLLoader factsLoader = new FXMLLoader();
-            factsLoader.setLocation(getClass().getResource("/fxml/main-apod.fxml"));
+            FXMLLoader mainLoader = new FXMLLoader();
+            mainLoader.setLocation(getClass().getResource("/fxml/main-apod.fxml"));
 
             BorderPane root = rootLoader.load();
 
-            factsLoader.setControllerFactory(param -> new MainApod(redisCacheService, gson, apodRepository));
-            AnchorPane factsAPOD = factsLoader.load();
+            mainLoader.setControllerFactory(param -> new MainApod(redisCacheService, gson, apodRepository));
+            AnchorPane factsAPOD = mainLoader.load();
 
             root.setCenter(factsAPOD);
 
@@ -196,13 +203,13 @@ public class FactsApod {
             FXMLLoader rootLoader = new FXMLLoader();
             rootLoader.setLocation(getClass().getResource("/fxml/root-apod.fxml"));
 
-            FXMLLoader factsLoader = new FXMLLoader();
-            factsLoader.setLocation(getClass().getResource("/fxml/saves-apod.fxml"));
+            FXMLLoader savesLoader = new FXMLLoader();
+            savesLoader.setLocation(getClass().getResource("/fxml/saves-apod.fxml"));
 
             BorderPane root = rootLoader.load();
 
-            factsLoader.setControllerFactory(param -> new SavesApod(redisCacheService, gson, apodRepository));
-            AnchorPane factsAPOD = factsLoader.load();
+            savesLoader.setControllerFactory(param -> new SavesApod(redisCacheService, gson, apodRepository));
+            AnchorPane factsAPOD = savesLoader.load();
 
             root.setCenter(factsAPOD);
 

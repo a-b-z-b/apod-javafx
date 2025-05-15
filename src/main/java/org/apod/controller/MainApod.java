@@ -3,6 +3,7 @@ package org.apod.controller;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import javafx.application.Platform;
+import javafx.concurrent.Worker;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -90,7 +91,6 @@ public class MainApod {
 
         saveBtn.setVisible(false);
         factsBtn.setVisible(false);
-        apodTitle.setVisible(false);
         fullscreenBtn.setVisible(false);
 
         if(todayApodJson != null) {
@@ -116,16 +116,6 @@ public class MainApod {
                         return null;
                     });
         }
-
-        new Thread(() -> {
-            try {
-                Thread.sleep(9000);
-                loader.setVisible(false);
-                apodTitle.setVisible(true);
-            } catch (Exception e) {
-                throw new RuntimeException(e);
-            }
-        }).start();
     }
 
     public void renderApod(String json) {
@@ -134,24 +124,41 @@ public class MainApod {
             APOD apod = gson.fromJson(json, new TypeToken<APOD>() {}.getType());
             theMainApod = apod;
 
+            apodTitle.setText(apod.getTitle());
+
             if (apod instanceof VideoAPOD) {
-                apodTitle.setText(apod.getTitle());
                 fullscreenBtn.setVisible(true);
                 todayApod.setVisible(false);
                 fullscreenBtn.setVisible(false);
                 String ytEmbeddedVideo = ((VideoAPOD) apod).getUrl() + "&autoplay=1&mute=1&loop=1";
+
+                apodYtVideo.getEngine().getLoadWorker().stateProperty().addListener((observable, oldValue, newValue) -> {
+                    if (newValue == Worker.State.SUCCEEDED) {
+                        loader.setVisible(false);// HIDE LOADER when video is fully loaded
+                        apodYtVideo.setVisible(true);
+                    }
+                });
+
                 apodYtVideo.getEngine().load(ytEmbeddedVideo);
-                apodYtVideo.setVisible(true);
             } else if(apod instanceof ImageAPOD) {
                 apodYtVideo.setVisible(false);
-                todayApod.setImage(new Image(((ImageAPOD) apod).getHdurl()));
-                todayApod.setVisible(true);
+
+                Image image = new Image(((ImageAPOD) apod).getHdurl(), true);// true = background load
+
+                image.progressProperty().addListener((observable, oldValue, newValue) -> {
+                    if (newValue.doubleValue() >= 1.0) {
+                        loader.setVisible(false);// HIDE LOADER when image is fully loaded
+                        todayApod.setVisible(true);
+                    }
+                });
+
+                todayApod.setImage(image);
                 fullscreenBtn.setVisible(true);
-                apodTitle.setText(apod.getTitle());
             } else {
                 apodTitle.setText("Unsupported media type.");
                 todayApod.setVisible(false);
                 apodYtVideo.setVisible(false);
+                loader.setVisible(false);
             }
 
             if(!repository.existsByDate(theMainApod.getDate())){
@@ -226,13 +233,13 @@ public class MainApod {
             FXMLLoader rootLoader = new FXMLLoader();
             rootLoader.setLocation(getClass().getResource("/fxml/root-apod.fxml"));
 
-            FXMLLoader factsLoader = new FXMLLoader();
-            factsLoader.setLocation(getClass().getResource("/fxml/saves-apod.fxml"));
+            FXMLLoader savesLoader = new FXMLLoader();
+            savesLoader.setLocation(getClass().getResource("/fxml/saves-apod.fxml"));
 
             BorderPane root = rootLoader.load();
 
-            factsLoader.setControllerFactory(param -> new SavesApod(redisCacheService, gson, repository));
-            AnchorPane factsAPOD = factsLoader.load();
+            savesLoader.setControllerFactory(param -> new SavesApod(redisCacheService, gson, repository));
+            AnchorPane factsAPOD = savesLoader.load();
 
             root.setCenter(factsAPOD);
 

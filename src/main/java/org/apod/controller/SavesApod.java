@@ -29,7 +29,6 @@ import org.apod.service.RedisCacheService;
 import java.util.List;
 
 public class SavesApod {
-    private final String LOADER_KEY = "loader:apod";
     private final String APOD_KEY = "list:apod";
     private final int APOD_TTL = 3600;
 
@@ -125,13 +124,13 @@ public class SavesApod {
             FXMLLoader rootLoader = new FXMLLoader();
             rootLoader.setLocation(getClass().getResource("/fxml/root-apod.fxml"));
 
-            FXMLLoader factsLoader = new FXMLLoader();
-            factsLoader.setLocation(getClass().getResource("/fxml/main-apod.fxml"));
+            FXMLLoader mainLoader = new FXMLLoader();
+            mainLoader.setLocation(getClass().getResource("/fxml/main-apod.fxml"));
 
             BorderPane root = rootLoader.load();
 
-            factsLoader.setControllerFactory(param -> new MainApod(redisCacheService, gson, apodRepository));
-            AnchorPane factsAPOD = factsLoader.load();
+            mainLoader.setControllerFactory(param -> new MainApod(redisCacheService, gson, apodRepository));
+            AnchorPane factsAPOD = mainLoader.load();
 
             root.setCenter(factsAPOD);
 
