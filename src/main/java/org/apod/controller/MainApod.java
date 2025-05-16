@@ -42,6 +42,9 @@ public class MainApod {
     private final int SAVES_APOD_WIDTH = 950;
     private final int SAVES_APOD_HEIGHT = 900;
 
+    private final int FACTS_BTN_LAYOUT_X = 310;
+    private final int FACTS_BTN_LAYOUT_Y = 542;
+
     private Gson gson;
     private RedisCacheService redisCacheService;
 
@@ -167,8 +170,8 @@ public class MainApod {
 
             factsBtn.setVisible(true);
             if (!saveBtn.isVisible()) {
-                factsBtn.setLayoutX(310);
-                factsBtn.setLayoutY(542);
+                factsBtn.setLayoutX(FACTS_BTN_LAYOUT_X);
+                factsBtn.setLayoutY(FACTS_BTN_LAYOUT_Y);
             }
         });
     }
@@ -210,8 +213,12 @@ public class MainApod {
     public void saveHandler(ActionEvent saveEvent) {
         if (!repository.existsByDate(theMainApod.getDate())) {
             repository.save(theMainApod);
+
             saveActionToast.setVisible(true);
             saveBtn.setVisible(false);
+            factsBtn.setLayoutX(FACTS_BTN_LAYOUT_X);
+            factsBtn.setLayoutY(FACTS_BTN_LAYOUT_Y);
+
             new Thread(() -> {
                 try {
                     Thread.sleep(15000);
