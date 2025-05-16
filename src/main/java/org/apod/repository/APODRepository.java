@@ -8,7 +8,6 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.text.SimpleDateFormat;
-import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -69,7 +68,6 @@ public class APODRepository implements Repository<APOD> {
                     apod = new VideoAPOD(
                             rs.getString("title"),
                             rs.getString("explanation"),
-                            rs.getString("media_type"),
                             new SimpleDateFormat("yyyy-MM-dd").parse(rs.getString("date")),
                             rs.getString("url")
                     );
@@ -77,7 +75,6 @@ public class APODRepository implements Repository<APOD> {
                     apod = new ImageAPOD(
                             rs.getString("title"),
                             rs.getString("explanation"),
-                            rs.getString("media_type"),
                             new SimpleDateFormat("yyyy-MM-dd").parse(rs.getString("date")),
                             rs.getString("copyright"),
                             rs.getString("hdurl")

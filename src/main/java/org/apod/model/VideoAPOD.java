@@ -5,10 +5,12 @@ import java.util.Date;
 public class VideoAPOD extends APOD {
     public String url;
 
-    public VideoAPOD() {}
+    public VideoAPOD() {
+        this.media_type = "video";
+    }
 
-    public VideoAPOD(String title, String explanation, String media_type, Date date, String url) {
-        super(title, explanation, media_type, date);
+    public VideoAPOD(String title, String explanation, Date date, String url) {
+        super(title, explanation, "video", date);
         this.url = url;
     }
 
