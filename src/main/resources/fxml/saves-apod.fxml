@@ -9,7 +9,7 @@
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.layout.StackPane?>
 
-<AnchorPane prefHeight="400.0" prefWidth="700.0" stylesheets="@../css/saves-apod.css" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.apod.controller.SavesApod">
+<AnchorPane fx:id="anchorPaneSaves" prefHeight="400.0" prefWidth="700.0" stylesheets="@../css/saves-apod.css" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.apod.controller.SavesApod">
    <children>
       <MenuButton fx:id="menuBtn" layoutX="14.0" layoutY="14.0" mnemonicParsing="false">
          <items>
@@ -24,7 +24,7 @@
             </ImageView>
          </graphic>
       </MenuButton>
-      <StackPane layoutY="57.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="57.0">
+      <StackPane fx:id="stackPane" layoutY="57.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="57.0">
          <children>
             <ScrollPane fx:id="scrollablePane" fitToHeight="true" fitToWidth="true" maxHeight="Infinity" maxWidth="-Infinity" prefHeight="700.0" prefWidth="900.0">
                <padding>

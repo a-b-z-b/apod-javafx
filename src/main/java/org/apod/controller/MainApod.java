@@ -239,9 +239,9 @@ public class MainApod {
             BorderPane root = rootLoader.load();
 
             savesLoader.setControllerFactory(param -> new SavesApod(redisCacheService, gson, repository));
-            AnchorPane factsAPOD = savesLoader.load();
+            AnchorPane savesAPOD = savesLoader.load();
 
-            root.setCenter(factsAPOD);
+            root.setCenter(savesAPOD);
 
             var scene = new Scene(root);
             scene.getStylesheets().add(getClass().getResource("/css/saves-apod.css").toExternalForm());

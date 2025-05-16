@@ -9,6 +9,7 @@ import javafx.concurrent.Task;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
+import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.Label;
 import javafx.scene.control.MenuItem;
@@ -17,6 +18,7 @@ import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.StackPane;
 import javafx.scene.web.WebView;
 import javafx.stage.Stage;
 import org.apod.layout.StaggeredGridPane;
@@ -41,6 +43,10 @@ public class SavesApod {
 
     @FXML
     public ScrollPane scrollablePane;
+    @FXML
+    public StackPane stackPane;
+    @FXML
+    public AnchorPane anchorPaneSaves;
 
     public SavesApod(RedisCacheService redisCacheService, Gson gson, APODRepository apodRepository) {
         RuntimeTypeAdapterFactory<APOD> adapterFactory = RuntimeTypeAdapterFactory
@@ -80,8 +86,17 @@ public class SavesApod {
         loadSavesWithUI.setOnSucceeded(event -> {
             List<APOD> apods = loadSavesWithUI.getValue();
 
+            if (apods.isEmpty()) {
+                Label infoLabel = new Label("There's no saves yet...");
+                infoLabel.setId("infoLabel");
+                infoLabel.setAlignment(Pos.CENTER);
+                StackPane errorStackPane = new StackPane(infoLabel);// StackPane Centers content by default
+                scrollablePane.setContent(errorStackPane);
+
+                return;
+            }
+
             StaggeredGridPane grid = new StaggeredGridPane(3, 100);
-            grid.setId("staggered-grid");
 
             for (APOD apod : apods) {
                 double height = 100 + (Math.random() * 100);
@@ -107,7 +122,11 @@ public class SavesApod {
             scrollablePane.setContent(grid);
         });
         loadSavesWithUI.setOnFailed(event -> {
-            scrollablePane.setContent(new Label("Failed to load APODs."));
+            Label errorLabel = new Label("An Error Occurred...\nFailed to load APODs...\nTry Again Later.");
+            errorLabel.setId("errorLabel");
+            errorLabel.setAlignment(Pos.CENTER);
+            StackPane errorStackPane = new StackPane(errorLabel);// StackPane Centers content by default
+            scrollablePane.setContent(errorStackPane);
             loadSavesWithUI.getException().printStackTrace();
         });
 
@@ -130,9 +149,9 @@ public class SavesApod {
             BorderPane root = rootLoader.load();
 
             mainLoader.setControllerFactory(param -> new MainApod(redisCacheService, gson, apodRepository));
-            AnchorPane factsAPOD = mainLoader.load();
+            AnchorPane homeAPOD = mainLoader.load();
 
-            root.setCenter(factsAPOD);
+            root.setCenter(homeAPOD);
 
             var scene = new Scene(root);
             scene.getStylesheets().add(getClass().getResource("/css/main-apod.css").toExternalForm());

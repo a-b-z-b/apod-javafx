@@ -1,12 +1,21 @@
+@import "fonts.css";
 @import "menu-button.css";
 
-.root {
+#anchorPaneSaves, #scrollablePane, #stackPane  * {
     -fx-background-color: #242424;
 }
 
-#staggered-grid, #scrollablePane {
-    -fx-background-color: #242424;
+#errorLabel, #infoLabel {
+    -fx-font-family: "TWKEverett-BoldItalic";
+    -fx-font-size: 50px;
+}
 
+#infoLabel {
+    -fx-text-fill : #6060f1;
+}
+
+#errorLabel {
+    -fx-text-fill : #f00;
 }
 
 /*.staggered-grid {*/

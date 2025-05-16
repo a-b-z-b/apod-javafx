@@ -175,9 +175,9 @@ public class FactsApod {
             BorderPane root = rootLoader.load();
 
             mainLoader.setControllerFactory(param -> new MainApod(redisCacheService, gson, apodRepository));
-            AnchorPane factsAPOD = mainLoader.load();
+            AnchorPane homeAPOD = mainLoader.load();
 
-            root.setCenter(factsAPOD);
+            root.setCenter(homeAPOD);
 
             var scene = new Scene(root);
             scene.getStylesheets().add(getClass().getResource("/css/main-apod.css").toExternalForm());
@@ -209,9 +209,9 @@ public class FactsApod {
             BorderPane root = rootLoader.load();
 
             savesLoader.setControllerFactory(param -> new SavesApod(redisCacheService, gson, apodRepository));
-            AnchorPane factsAPOD = savesLoader.load();
+            AnchorPane savesAPOD = savesLoader.load();
 
-            root.setCenter(factsAPOD);
+            root.setCenter(savesAPOD);
 
             var scene = new Scene(root);
             scene.getStylesheets().add(getClass().getResource("/css/saves-apod.css").toExternalForm());
