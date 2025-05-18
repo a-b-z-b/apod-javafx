@@ -2,6 +2,7 @@ package org.apod.controller;
 
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
+import javafx.animation.PauseTransition;
 import javafx.application.Platform;
 import javafx.concurrent.Worker;
 import javafx.event.ActionEvent;
@@ -18,6 +19,7 @@ import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.web.WebView;
 import javafx.stage.Stage;
+import javafx.util.Duration;
 import org.apod.model.APOD;
 import org.apod.model.ImageAPOD;
 import org.apod.model.VideoAPOD;
@@ -79,6 +81,29 @@ public class MainApod {
 
     @FXML
     public void initialize() {
+        PauseTransition timeout = new PauseTransition(Duration.seconds(20));
+
+        timeout.setOnFinished(_ -> {
+            if (
+                    apodYtVideo.getEngine().getLoadWorker().getProgress() < 1.0
+                    || todayApod.getImage() == null
+                    || todayApod.getImage().isError()
+                    || todayApod.getImage().getProgress() < 1.0
+            ) {
+                System.out.println("Timeout: Failed to load media.");
+                // TODO: fallback UI
+                Image fallBackImage = new Image(getClass().getResource("/assets/broken-1.jpg").toExternalForm(), true);
+                todayApod.setImage(fallBackImage);
+                todayApod.setVisible(true);
+
+                loader.setVisible(false);
+                apodYtVideo.setVisible(false);
+
+                apodTitle.setText("Error loading media...\nCheck your internet connection.");
+                apodTitle.setStyle("-fx-text-fill: red; -fx-font-size: 15px");
+            }
+        });
+
         String todayApodJson = redisCacheService.get(APOD_KEY);
 
         String loaderMarkup = null;
@@ -97,8 +122,11 @@ public class MainApod {
         fullscreenBtn.setVisible(false);
 
         if(todayApodJson != null) {
-            renderApod(todayApodJson);
+            System.out.println("CACHE HIT -> todayApodJson: " + todayApodJson);
+            renderApod(todayApodJson, timeout);
         } else {
+            // we must run timeout to handle case being offline and data not-cached hence http request fails.
+            timeout.play();
             HttpClient client = HttpClient.newHttpClient();
 
             HttpRequest request = HttpRequest
@@ -112,7 +140,7 @@ public class MainApod {
                         // cache this json using redis
                         redisCacheService.set(APOD_KEY,json, APOD_TTL);
                         // render the APOD
-                        renderApod(json);
+                        renderApod(json, timeout);
                     })
                     .exceptionally(e -> {
                         e.printStackTrace();
@@ -121,10 +149,31 @@ public class MainApod {
         }
     }
 
-    public void renderApod(String json) {
-
+    public void renderApod(String json, PauseTransition timeout) {
         Platform.runLater(() -> {
-            APOD apod = gson.fromJson(json, new TypeToken<APOD>() {}.getType());
+            APOD apod = null;
+            try {
+                apod = gson.fromJson(json, new TypeToken<APOD>() {}.getType());
+            } catch (Exception e) {
+                // Handle case when endpoint returns a media_type json-field other than image/video
+                // hence gson parser throws a JsonParseException exception.
+                timeout.stop();
+                apodTitle.setText("Error loading media...\nUnsupported media type.");
+                Image fallBackImage = new Image(getClass().getResource("/assets/broken-2.jpg").toExternalForm(), true);
+                todayApod.setImage(fallBackImage);
+                todayApod.setVisible(true);
+
+                loader.setVisible(false);
+                apodYtVideo.setVisible(false);
+                fullscreenBtn.setVisible(false);
+                factsBtn.setVisible(false);
+                saveBtn.setVisible(false);
+
+                apodTitle.setStyle("-fx-text-fill: red; -fx-font-size: 15px");
+                System.out.println("EXCEPTION :" + e.getMessage());
+                return;
+            }
+
             theMainApod = apod;
 
             apodTitle.setText(apod.getTitle());
@@ -135,10 +184,23 @@ public class MainApod {
                 fullscreenBtn.setVisible(false);
                 String ytEmbeddedVideo = ((VideoAPOD) apod).getUrl() + "&autoplay=1&mute=1&loop=1";
 
-                apodYtVideo.getEngine().getLoadWorker().stateProperty().addListener((observable, oldValue, newValue) -> {
+                timeout.play();
+                apodYtVideo.getEngine().getLoadWorker().stateProperty().addListener((_, _, newValue) -> {
                     if (newValue == Worker.State.SUCCEEDED) {
+                        timeout.stop();
                         loader.setVisible(false);// HIDE LOADER when video is fully loaded
                         apodYtVideo.setVisible(true);
+                    } else if (newValue == Worker.State.FAILED){
+                        Image fallBackImage = new Image(getClass().getResource("/assets/broken-video.png").toExternalForm(), true);
+                        todayApod.setImage(fallBackImage);
+                        todayApod.setVisible(true);
+
+                        apodYtVideo.setVisible(false);
+                        fullscreenBtn.setVisible(false);
+                        factsBtn.setVisible(false);
+
+                        apodTitle.setText("Error loading media...");
+                        apodTitle.setStyle("-fx-text-fill: red; -fx-font-size: 15px");
                     }
                 });
 
@@ -148,8 +210,26 @@ public class MainApod {
 
                 Image image = new Image(((ImageAPOD) apod).getHdurl(), true);// true = background load
 
-                image.progressProperty().addListener((observable, oldValue, newValue) -> {
+                image.errorProperty().addListener((_, _, isNowError) -> {
+                    if(isNowError) {
+                        Image fallBackImage = new Image(getClass().getResource("/assets/broken-1.jpg").toExternalForm(), true);
+                        todayApod.setImage(fallBackImage);
+                        todayApod.setVisible(true);
+
+                        apodYtVideo.setVisible(false);
+                        fullscreenBtn.setVisible(false);
+                        factsBtn.setVisible(false);
+                        saveBtn.setVisible(false);
+
+                        apodTitle.setText("Error loading media...");
+                        apodTitle.setStyle("-fx-text-fill: red; -fx-font-size: 15px");
+                    }
+                });
+
+                timeout.play();
+                image.progressProperty().addListener((_, _, newValue) -> {
                     if (newValue.doubleValue() >= 1.0) {
+                        timeout.stop();
                         loader.setVisible(false);// HIDE LOADER when image is fully loaded
                         todayApod.setVisible(true);
                     }
@@ -190,7 +270,7 @@ public class MainApod {
 
             BorderPane root = rootLoader.load();
 
-            factsLoader.setControllerFactory(param -> new FactsApod(redisCacheService, gson, repository));
+            factsLoader.setControllerFactory(_ -> new FactsApod(redisCacheService, gson, repository));
             AnchorPane factsAPOD = factsLoader.load();
 
             root.setCenter(factsAPOD);
@@ -245,7 +325,7 @@ public class MainApod {
 
             BorderPane root = rootLoader.load();
 
-            savesLoader.setControllerFactory(param -> new SavesApod(redisCacheService, gson, repository));
+            savesLoader.setControllerFactory(_ -> new SavesApod(redisCacheService, gson, repository));
             AnchorPane savesAPOD = savesLoader.load();
 
             root.setCenter(savesAPOD);

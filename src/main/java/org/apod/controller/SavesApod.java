@@ -6,6 +6,7 @@ import com.google.gson.reflect.TypeToken;
 import com.google.gson.typeadapters.RuntimeTypeAdapterFactory;
 import javafx.application.Platform;
 import javafx.concurrent.Task;
+import javafx.concurrent.Worker;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -21,6 +22,7 @@ import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.StackPane;
 import javafx.scene.web.WebView;
 import javafx.stage.Stage;
+import org.apod.layout.APODCard;
 import org.apod.layout.StaggeredGridPane;
 import org.apod.model.APOD;
 import org.apod.model.ImageAPOD;
@@ -83,7 +85,7 @@ public class SavesApod {
             }
         };
 
-        loadSavesWithUI.setOnSucceeded(event -> {
+        loadSavesWithUI.setOnSucceeded(_ -> {
             List<APOD> apods = loadSavesWithUI.getValue();
 
             if (apods.isEmpty()) {
@@ -96,33 +98,65 @@ public class SavesApod {
                 return;
             }
 
-            StaggeredGridPane grid = new StaggeredGridPane(3, 100);
+            StaggeredGridPane grid = new StaggeredGridPane(3, 50);
 
-            for (APOD apod : apods) {
-                double height = 100 + (Math.random() * 100);
-
-                if (apod instanceof VideoAPOD) {
-                    Platform.runLater(() -> {
-                        WebView wv = new WebView();
-                        wv.getEngine().load(((VideoAPOD) apod).getUrl());
-
-                        wv.setPrefHeight(height);
-                        grid.getChildren().add(wv);
-                    });
-                } else if (apod instanceof ImageAPOD) {
-                    ImageView iv = new ImageView();
-
-                    iv.setImage(new Image(((ImageAPOD) apod).getHdurl(), true)); // HERE THE SECRET IS THE BOOLEAN! "async load"
-
-                    iv.setFitHeight(height);
-                    iv.setPreserveRatio(true);
-                    grid.getChildren().add(iv);
-                }
+            // Reserve one empty card per APOD
+            for (int i = 0; i < apods.size(); i++) {
+                APODCard placeholder = new APODCard();
+                grid.getChildren().add(placeholder);
             }
-            scrollablePane.setContent(grid);
+
+            // Populate grid elements with corresponding ImageView/WebView
+            double colW = scrollablePane.getWidth() / 3 - grid.getGap();
+
+            for (int i = 0; i < apods.size(); i++) {
+                APOD apod = apods.get(i);
+                APODCard card = (APODCard) grid.getChildren().get(i);
+
+                double h = 100 + (Math.random() * 100);
+                card.setPrefSize(colW, h);
+
+                if (apod instanceof ImageAPOD img) {
+                    Image image = new Image(img.getHdurl(), true);
+                    ImageView iv = new ImageView(image);
+                    iv.setFitWidth(colW);
+                    iv.setFitHeight(h);
+                    iv.setPreserveRatio(true);
+
+                    image.progressProperty().addListener((_, _, prog) -> {
+                        if (prog.doubleValue() >= 1.0) {
+                            Platform.runLater(() -> card.setContent(iv));
+                        }
+                    });
+                    image.errorProperty().addListener((_, _, err) -> {
+                        if (err) Platform.runLater(() -> card.setFallback("image"));
+                    });
+
+                } else if (apod instanceof VideoAPOD vid) {
+                    WebView wv = new WebView();
+                    wv.setPrefHeight(h);
+
+                    wv.getEngine().load(vid.getUrl());
+
+                    wv.getEngine().getLoadWorker().stateProperty().addListener((_, _, s) -> {
+                        if (s == Worker.State.FAILED) {
+                            Platform.runLater(() -> card.setFallback("video"));
+                        }
+                    });
+
+                    Platform.runLater(() -> card.setContent(wv));
+                }
+
+            }
+
+            Platform.runLater(() -> {
+                scrollablePane.setContent(grid);
+                grid.requestLayout();
+            });
         });
-        loadSavesWithUI.setOnFailed(event -> {
-            Label errorLabel = new Label("An Error Occurred...\nFailed to load APODs...\nTry Again Later.");
+
+        loadSavesWithUI.setOnFailed(_ -> {
+            Label errorLabel = new Label("An Error Occurred...\nFailed to load saved APODs...\nTry Again Later.");
             errorLabel.setId("errorLabel");
             errorLabel.setAlignment(Pos.CENTER);
             StackPane errorStackPane = new StackPane(errorLabel);// StackPane Centers content by default
@@ -148,7 +182,7 @@ public class SavesApod {
 
             BorderPane root = rootLoader.load();
 
-            mainLoader.setControllerFactory(param -> new MainApod(redisCacheService, gson, apodRepository));
+            mainLoader.setControllerFactory(_ -> new MainApod(redisCacheService, gson, apodRepository));
             AnchorPane homeAPOD = mainLoader.load();
 
             root.setCenter(homeAPOD);

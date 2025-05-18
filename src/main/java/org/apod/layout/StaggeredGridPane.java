@@ -12,8 +12,10 @@ public class StaggeredGridPane extends Pane {
     public StaggeredGridPane(final int columnCount, final double gap) {
         this.columnCount = columnCount;
         this.gap = gap;
+    }
 
-        widthProperty().addListener((obs, oldVal, newVal) -> requestLayout());
+    public double getGap() {
+        return gap;
     }
 
     @Override
@@ -28,7 +30,7 @@ public class StaggeredGridPane extends Pane {
             double y = columnHeights[col];
 
             double prefHeight = node.prefHeight(columnWidth);
-            node.resizeRelocate(x, y, columnWidth+gap, prefHeight);
+            node.resizeRelocate(x, y, columnWidth, prefHeight);
 
             columnHeights[col] += prefHeight + gap;
         }

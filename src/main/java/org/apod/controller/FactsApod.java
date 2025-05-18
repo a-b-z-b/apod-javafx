@@ -47,6 +47,7 @@ public class FactsApod {
 
     private final String APOD_KEY = "today:apod";
     private final String LOADER_KEY = "loader:apod";
+    private final String FAIL_TEXT = "FAILED TO LOAD :/";
 
     private final int MAIN_APOD_WIDTH = 700;
     private final int MAIN_APOD_HEIGHT = 700;
@@ -95,10 +96,25 @@ public class FactsApod {
 
                 String ytEmbeddedVideo = ((VideoAPOD) apod).getUrl() + "&autoplay=1&mute=1&loop=1";
 
-                apodYtVideo.getEngine().getLoadWorker().stateProperty().addListener((observable, oldValue, newValue) -> {
+                apodYtVideo.getEngine().getLoadWorker().stateProperty().addListener((_, _, newValue) -> {
                     if (newValue == Worker.State.SUCCEEDED) {
                         loader.setVisible(false);// HIDE LOADER when video is fully loaded
                         apodYtVideo.setVisible(true);
+                    } else if (newValue == Worker.State.FAILED) {
+                        Image fallBackImage = new Image(getClass().getResource("/assets/broken-video.png").toExternalForm(), true);
+                        apodImage.setImage(fallBackImage);
+                        apodImage.setVisible(true);
+
+                        loader.setVisible(false);
+                        apodYtVideo.setVisible(false);
+                        saveBtn.setVisible(false);
+
+                        explanationAPOD.setText(FAIL_TEXT);
+                        dateAPOD.setText(FAIL_TEXT);
+                        cpRightPhotographer.setText(FAIL_TEXT);
+
+                        titleAPOD.setText("Error loading media...");
+                        titleAPOD.setStyle("-fx-text-fill: red; -fx-font-size: 15px");
                     }
                 });
 
@@ -118,7 +134,26 @@ public class FactsApod {
 
                 Image image = new Image(((ImageAPOD) apod).getHdurl(), true);// true = background load
 
-                image.progressProperty().addListener((observable, oldValue, newValue) -> {
+                image.errorProperty().addListener((_, _, isNowError) -> {
+                    if(isNowError) {
+                        Image fallBackImage = new Image(getClass().getResource("/assets/broken-3.jpg").toExternalForm(), true);
+                        apodImage.setImage(fallBackImage);
+                        apodImage.setVisible(true);
+
+                        loader.setVisible(false);
+                        apodYtVideo.setVisible(false);
+                        saveBtn.setVisible(false);
+
+                        explanationAPOD.setText(FAIL_TEXT);
+                        dateAPOD.setText(FAIL_TEXT);
+                        cpRightPhotographer.setText(FAIL_TEXT);
+
+                        titleAPOD.setText("Error loading media...");
+                        titleAPOD.setStyle("-fx-text-fill: red; -fx-font-size: 15px");
+                    }
+                });
+
+                image.progressProperty().addListener((_, _, newValue) -> {
                     if (newValue.doubleValue() >= 1.0) {
                         loader.setVisible(false); // HIDE LOADER when image is fully loaded
                         apodImage.setVisible(true);
@@ -174,7 +209,7 @@ public class FactsApod {
 
             BorderPane root = rootLoader.load();
 
-            mainLoader.setControllerFactory(param -> new MainApod(redisCacheService, gson, apodRepository));
+            mainLoader.setControllerFactory(_ -> new MainApod(redisCacheService, gson, apodRepository));
             AnchorPane homeAPOD = mainLoader.load();
 
             root.setCenter(homeAPOD);
@@ -208,7 +243,7 @@ public class FactsApod {
 
             BorderPane root = rootLoader.load();
 
-            savesLoader.setControllerFactory(param -> new SavesApod(redisCacheService, gson, apodRepository));
+            savesLoader.setControllerFactory(_ -> new SavesApod(redisCacheService, gson, apodRepository));
             AnchorPane savesAPOD = savesLoader.load();
 
             root.setCenter(savesAPOD);
