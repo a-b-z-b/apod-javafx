@@ -21,7 +21,31 @@ public class APODRepository implements Repository<APOD> {
 
     @Override
     public APOD findById(int id) {
-        return null;
+        String sql = "SELECT * FROM APOD WHERE id = ?";
+        try (PreparedStatement stmt = connection.prepareStatement(sql)) {
+            stmt.setInt(1, id);
+
+            ResultSet rs = stmt.executeQuery();
+
+            if (rs.getString("media_type").equals("image")) {
+                return new ImageAPOD(
+                        rs.getString("title"),
+                        rs.getString("explanation"),
+                        new SimpleDateFormat("yyyy-MM-dd").parse(rs.getString("date")),
+                        rs.getString("copyright"),
+                        rs.getString("hdurl")
+                );
+            } else {
+                return new VideoAPOD(
+                        rs.getString("title"),
+                        rs.getString("explanation"),
+                        new SimpleDateFormat("yyyy-MM-dd").parse(rs.getString("date")),
+                        rs.getString("url")
+                );
+            }
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
     }
 
     @Override
