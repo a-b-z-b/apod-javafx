@@ -12,6 +12,8 @@ public class StaggeredGridPane extends Pane {
     public StaggeredGridPane(final int columnCount, final double gap) {
         this.columnCount = columnCount;
         this.gap = gap;
+
+        setId("grid");
     }
 
     public double getGap() {
