@@ -22,6 +22,12 @@ public class RedisCacheService {
         }
     }
 
+    public void clearCache() {
+        try(Jedis jedis = jedisPool.getResource()) {
+            jedis.flushAll();
+        }
+    }
+
     public void shutDown(){
         jedisPool.close();
     }
