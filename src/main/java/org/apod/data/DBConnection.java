@@ -14,6 +14,9 @@ public class DBConnection {
                         Class.forName("org.sqlite.JDBC");
                         connection = DriverManager.getConnection("jdbc:sqlite:data.db");
                         break;
+                    case "test":
+                        Class.forName("org.sqlite.JDBC");
+                        return DriverManager.getConnection("jdbc:sqlite:data_test.db");
                     default:
                         throw new IllegalArgumentException("Unsupported DB");
                 }
