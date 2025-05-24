@@ -29,6 +29,7 @@ public class APODRepository implements Repository<APOD> {
 
             if (rs.getString("media_type").equals("image")) {
                 return new ImageAPOD(
+                        rs.getInt("id"),
                         rs.getString("title"),
                         rs.getString("explanation"),
                         new SimpleDateFormat("yyyy-MM-dd").parse(rs.getString("date")),
@@ -37,6 +38,7 @@ public class APODRepository implements Repository<APOD> {
                 );
             } else {
                 return new VideoAPOD(
+                        rs.getInt("id"),
                         rs.getString("title"),
                         rs.getString("explanation"),
                         new SimpleDateFormat("yyyy-MM-dd").parse(rs.getString("date")),
@@ -90,6 +92,7 @@ public class APODRepository implements Repository<APOD> {
                 APOD apod = null;
                 if(rs.getString("media_type").equals("video")) {
                     apod = new VideoAPOD(
+                            rs.getInt("id"),
                             rs.getString("title"),
                             rs.getString("explanation"),
                             new SimpleDateFormat("yyyy-MM-dd").parse(rs.getString("date")),
@@ -97,6 +100,7 @@ public class APODRepository implements Repository<APOD> {
                     );
                 } else {
                     apod = new ImageAPOD(
+                            rs.getInt("id"),
                             rs.getString("title"),
                             rs.getString("explanation"),
                             new SimpleDateFormat("yyyy-MM-dd").parse(rs.getString("date")),

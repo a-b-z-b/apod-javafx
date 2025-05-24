@@ -9,8 +9,8 @@ public class VideoAPOD extends APOD {
         this.media_type = "video";
     }
 
-    public VideoAPOD(String title, String explanation, Date date, String url) {
-        super(title, explanation, "video", date);
+    public VideoAPOD(int id, String title, String explanation, Date date, String url) {
+        super(id, title, explanation, "video", date);
         this.url = url;
     }
 

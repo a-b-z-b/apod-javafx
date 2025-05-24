@@ -8,7 +8,7 @@ import javafx.scene.layout.StackPane;
 
 public class APODCard extends StackPane {
     public APODCard() {
-        setStyle("-fx-border-color: #f00");
+        setStyle("-fx-border-color: #0abc10; -fx-cursor:hand;");
     }
 
     /** Called when the real node is ready to show. */

@@ -10,8 +10,8 @@ public class ImageAPOD extends APOD {
         this.media_type = "image";
     }
 
-    public ImageAPOD(String title, String explanation, Date date, String copyright, String hdurl) {
-        super(title, explanation, "image", date);
+    public ImageAPOD(int id, String title, String explanation, Date date, String copyright, String hdurl) {
+        super(id, title, explanation, "image", date);
         this.copyright = copyright;
         this.hdurl = hdurl;
     }
