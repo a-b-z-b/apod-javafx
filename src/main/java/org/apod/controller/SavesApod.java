@@ -13,13 +13,10 @@ import javafx.fxml.FXMLLoader;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.Label;
-import javafx.scene.control.MenuItem;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
-import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.AnchorPane;
-import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.StackPane;
 import javafx.scene.web.WebView;
 import javafx.stage.Stage;
@@ -30,6 +27,7 @@ import org.apod.model.ImageAPOD;
 import org.apod.model.VideoAPOD;
 import org.apod.repository.APODRepository;
 import org.apod.service.AbstractCacheService;
+import org.apod.util.FXHelper;
 
 import java.util.List;
 
@@ -37,8 +35,6 @@ public class SavesApod {
     private final String APOD_KEY = "list:apod";
     private final int APOD_TTL = 3600;
 
-    private final int MAIN_APOD_WIDTH = 700;
-    private final int MAIN_APOD_HEIGHT = 700;
     private final int DETAILS_APOD_WIDTH = 850;
     private final int DETAILS_APOD_HEIGHT = 600;
 
@@ -182,36 +178,7 @@ public class SavesApod {
 
     @FXML
     public void goHomeHandler(ActionEvent event) {
-        MenuItem menuItem = (MenuItem) event.getSource();
-
-        Stage stage = (Stage) menuItem.getParentPopup().getOwnerWindow();
-
-        try {
-            FXMLLoader rootLoader = new FXMLLoader();
-            rootLoader.setLocation(getClass().getResource("/fxml/root-apod.fxml"));
-
-            FXMLLoader mainLoader = new FXMLLoader();
-            mainLoader.setLocation(getClass().getResource("/fxml/main-apod.fxml"));
-
-            BorderPane root = rootLoader.load();
-
-            mainLoader.setControllerFactory(_ -> new MainApod(cacheService, gson, apodRepository));
-            AnchorPane homeAPOD = mainLoader.load();
-
-            root.setCenter(homeAPOD);
-
-            var scene = new Scene(root);
-            scene.getStylesheets().add(getClass().getResource("/css/main-apod.css").toExternalForm());
-
-            stage.setScene(scene);
-
-            stage.setHeight(MAIN_APOD_HEIGHT);
-            stage.setWidth(MAIN_APOD_WIDTH);
-
-            stage.show();
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
+        FXHelper.switchToHome(event, cacheService, gson, apodRepository);
     }
 
     private void showDetailsOfTheAPOD(APOD apod) {

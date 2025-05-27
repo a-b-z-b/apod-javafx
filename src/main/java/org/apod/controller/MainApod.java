@@ -7,49 +7,36 @@ import javafx.application.Platform;
 import javafx.concurrent.Worker;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
-import javafx.fxml.FXMLLoader;
-import javafx.scene.Node;
-import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.MenuItem;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
-import javafx.scene.layout.AnchorPane;
-import javafx.scene.layout.BorderPane;
 import javafx.scene.web.WebView;
-import javafx.stage.Stage;
 import javafx.util.Duration;
 import org.apod.model.APOD;
 import org.apod.model.ImageAPOD;
 import org.apod.model.VideoAPOD;
 import org.apod.repository.APODRepository;
 import org.apod.service.AbstractCacheService;
+import org.apod.util.FXHelper;
+import org.apod.util.UIHelper;
 
 import java.net.URI;
-import java.net.URL;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
-import java.nio.file.Files;
-import java.nio.file.Paths;
 
 public class MainApod {
     private final String APOD_KEY = "today:apod";
     private final String LOADER_KEY = "loader:apod";
     private final int APOD_TTL = 3600;
 
-    private final int FACTS_APOD_WIDTH = 850;
-    private final int FACTS_APOD_HEIGHT = 600;
-    private final int SAVES_APOD_WIDTH = 950;
-    private final int SAVES_APOD_HEIGHT = 900;
-
     private final int FACTS_BTN_LAYOUT_X = 310;
     private final int FACTS_BTN_LAYOUT_Y = 542;
 
     private Gson gson;
     private AbstractCacheService cacheService;
-
     private APODRepository repository;
 
     private APOD theMainApod;
@@ -104,48 +91,40 @@ public class MainApod {
             }
         });
 
-        String todayApodJson = cacheService.get(APOD_KEY);
-
-        String loaderMarkup = null;
-        if(cacheService.get(LOADER_KEY) != null) {
-            loaderMarkup = cacheService.get(LOADER_KEY);
-        } else {
-            loaderMarkup = this.loadHtmlToString("loader.html");
-            cacheService.set(LOADER_KEY, loaderMarkup, APOD_TTL);
-        }
-
-        loader.getEngine().setUserStyleSheetLocation(getClass().getResource("/html/loader.css").toExternalForm());
-        loader.getEngine().loadContent(loaderMarkup, "text/html");
+        UIHelper.spinLoader(cacheService, loader, LOADER_KEY, APOD_TTL);
 
         saveBtn.setVisible(false);
         factsBtn.setVisible(false);
         fullscreenBtn.setVisible(false);
 
+        String todayApodJson = cacheService.get(APOD_KEY);
+
         if(todayApodJson != null) {
             System.out.println("CACHE HIT -> todayApodJson: " + todayApodJson);
             renderApod(todayApodJson, timeout);
         } else {
+            System.out.println("CACHE MISS -> MAKING REQUEST TO API ENDPOINT");
             // we must run timeout to handle case being offline and data not-cached hence http request fails.
             timeout.play();
-            HttpClient client = HttpClient.newHttpClient();
+            try (HttpClient client = HttpClient.newHttpClient()){
+                HttpRequest request = HttpRequest
+                        .newBuilder(URI.create("https://api.nasa.gov/planetary/apod?api_key=DEMO_KEY"))
+                        .header("Accept", "application/json")
+                        .build();
 
-            HttpRequest request = HttpRequest
-                    .newBuilder(URI.create("https://api.nasa.gov/planetary/apod?api_key=DEMO_KEY"))
-                    .header("Accept", "application/json")
-                    .build();
-
-            client.sendAsync(request, HttpResponse.BodyHandlers.ofString())
-                    .thenApply(HttpResponse::body)
-                    .thenAccept(json -> {
-                        // cache this json using redis
-                        cacheService.set(APOD_KEY,json, APOD_TTL);
-                        // render the APOD
-                        renderApod(json, timeout);
-                    })
-                    .exceptionally(e -> {
-                        e.printStackTrace();
-                        return null;
-                    });
+                client.sendAsync(request, HttpResponse.BodyHandlers.ofString())
+                        .thenApply(HttpResponse::body)
+                        .thenAccept(json -> {
+                            // cache this json using redis
+                            cacheService.set(APOD_KEY,json, APOD_TTL);
+                            // render the APOD
+                            renderApod(json, timeout);
+                        })
+                        .exceptionally(e -> {
+                            e.printStackTrace();
+                            return null;
+                        });
+            }
         }
     }
 
@@ -258,35 +237,7 @@ public class MainApod {
 
     @FXML
     public void seeFactsHandler(ActionEvent event) {
-        Node node = (Node) event.getSource();
-        Stage stage = (Stage) node.getScene().getWindow();
-
-        try {
-            FXMLLoader rootLoader = new FXMLLoader();
-            rootLoader.setLocation(getClass().getResource("/fxml/root-apod.fxml"));
-
-            FXMLLoader factsLoader = new FXMLLoader();
-            factsLoader.setLocation(getClass().getResource("/fxml/facts-apod.fxml"));
-
-            BorderPane root = rootLoader.load();
-
-            factsLoader.setControllerFactory(_ -> new FactsApod(cacheService, gson, repository));
-            AnchorPane factsAPOD = factsLoader.load();
-
-            root.setCenter(factsAPOD);
-
-            var scene = new Scene(root);
-            stage.setScene(scene);
-
-            stage.setHeight(FACTS_APOD_HEIGHT);
-            stage.setWidth(FACTS_APOD_WIDTH);
-
-            scene.getStylesheets().add(getClass().getResource("/css/facts-apod.css").toExternalForm());
-
-            stage.show();
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
+        FXHelper.switchToFacts(event, cacheService, gson, repository);
     }
 
     @FXML
@@ -312,47 +263,6 @@ public class MainApod {
 
     @FXML
     public void seeSavesHandler(ActionEvent event) {
-        MenuItem menuItem = (MenuItem) event.getSource();
-
-        Stage stage = (Stage) menuItem.getParentPopup().getOwnerWindow();
-
-        try {
-            FXMLLoader rootLoader = new FXMLLoader();
-            rootLoader.setLocation(getClass().getResource("/fxml/root-apod.fxml"));
-
-            FXMLLoader savesLoader = new FXMLLoader();
-            savesLoader.setLocation(getClass().getResource("/fxml/saves-apod.fxml"));
-
-            BorderPane root = rootLoader.load();
-
-            savesLoader.setControllerFactory(_ -> new SavesApod(cacheService, gson, repository));
-            AnchorPane savesAPOD = savesLoader.load();
-
-            root.setCenter(savesAPOD);
-
-            var scene = new Scene(root);
-            scene.getStylesheets().add(getClass().getResource("/css/saves-apod.css").toExternalForm());
-
-            stage.setScene(scene);
-
-            stage.setHeight(SAVES_APOD_HEIGHT);
-            stage.setWidth(SAVES_APOD_WIDTH);
-
-            stage.show();
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
-    }
-
-    protected String loadHtmlToString(String path) {
-        try {
-            URL markupPath = getClass().getResource("/html/" + path);
-            if (markupPath == null) {
-                throw new RuntimeException("Could not find html file: " + path);
-            }
-            return Files.readString(Paths.get(markupPath.toURI()));
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
+        FXHelper.switchToSaves(event, cacheService, gson, repository);
     }
 }
