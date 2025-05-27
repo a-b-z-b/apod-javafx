@@ -29,7 +29,7 @@ import org.apod.model.APOD;
 import org.apod.model.ImageAPOD;
 import org.apod.model.VideoAPOD;
 import org.apod.repository.APODRepository;
-import org.apod.service.RedisCacheService;
+import org.apod.service.AbstractCacheService;
 
 import java.util.List;
 
@@ -43,7 +43,7 @@ public class SavesApod {
     private final int DETAILS_APOD_HEIGHT = 600;
 
     private Gson gson;
-    private RedisCacheService redisCacheService;
+    private AbstractCacheService cacheService;
     private APODRepository apodRepository;
 
     @FXML
@@ -53,13 +53,13 @@ public class SavesApod {
     @FXML
     public AnchorPane anchorPaneSaves;
 
-    public SavesApod(RedisCacheService redisCacheService, Gson gson, APODRepository apodRepository) {
+    public SavesApod(AbstractCacheService cacheService, Gson gson, APODRepository apodRepository) {
         RuntimeTypeAdapterFactory<APOD> adapterFactory = RuntimeTypeAdapterFactory
                 .of(APOD.class, "media_type")
                 .registerSubtype(ImageAPOD.class, "image")
                 .registerSubtype(VideoAPOD.class, "video");
 
-        this.redisCacheService = redisCacheService;
+        this.cacheService = cacheService;
         this.gson = new GsonBuilder()
                 .registerTypeAdapterFactory(adapterFactory)
                 .create();
@@ -73,15 +73,15 @@ public class SavesApod {
             protected List<APOD> call() {
                 List<APOD> apods = null;
 
-                if (redisCacheService.get(APOD_KEY) != null) {
+                if (cacheService.get(APOD_KEY) != null) {
                     System.out.println("CACHE HIT");
-                    String json = redisCacheService.get(APOD_KEY);
+                    String json = cacheService.get(APOD_KEY);
                     apods = gson.fromJson(json, new TypeToken<List<APOD>>() {}.getType());
                 } else {
                     System.out.println("CACHE MISS");
                     apods = apodRepository.findAll();
                     String jsonAPODS = gson.toJson(apods);
-                    redisCacheService.set(APOD_KEY, jsonAPODS, APOD_TTL);
+                    cacheService.set(APOD_KEY, jsonAPODS, APOD_TTL);
                 }
 
                 return apods;
@@ -195,7 +195,7 @@ public class SavesApod {
 
             BorderPane root = rootLoader.load();
 
-            mainLoader.setControllerFactory(_ -> new MainApod(redisCacheService, gson, apodRepository));
+            mainLoader.setControllerFactory(_ -> new MainApod(cacheService, gson, apodRepository));
             AnchorPane homeAPOD = mainLoader.load();
 
             root.setCenter(homeAPOD);
@@ -219,7 +219,7 @@ public class SavesApod {
             FXMLLoader detailsLoader = new FXMLLoader();
             detailsLoader.setLocation(getClass().getResource("/fxml/details-apod.fxml"));
 
-            detailsLoader.setControllerFactory(_ -> new DetailsApod(redisCacheService, gson, apodRepository, apod));
+            detailsLoader.setControllerFactory(_ -> new DetailsApod(cacheService, gson, apodRepository, apod));
 
             AnchorPane detailsPane = detailsLoader.load();
 

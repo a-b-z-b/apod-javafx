@@ -16,6 +16,8 @@ import org.apod.model.APOD;
 import org.apod.model.ImageAPOD;
 import org.apod.model.VideoAPOD;
 import org.apod.repository.APODRepository;
+import org.apod.service.AbstractCacheService;
+import org.apod.service.DefaultCacheService;
 import org.apod.service.RedisCacheService;
 
 import java.sql.Connection;
@@ -30,7 +32,8 @@ public class APODApp extends Application {
     private Stage stage;
     private BorderPane root;
 
-    private RedisCacheService cacheService;
+    private AbstractCacheService cacheService;
+
     private Gson gson;
     private RuntimeTypeAdapterFactory<APOD> adapterFactory;
     private APODRepository apodRepository;
@@ -42,7 +45,8 @@ public class APODApp extends Application {
         this.stage = stage;
         this.stage.setTitle("Astronomy Picture Of the Day");
 
-        this.cacheService = new RedisCacheService("localhost", 6379);
+        this.initCache();
+
         this.adapterFactory = RuntimeTypeAdapterFactory
                 .of(APOD.class, "media_type")
                 .registerSubtype(ImageAPOD.class, "image")
@@ -66,8 +70,8 @@ public class APODApp extends Application {
     @Override
     public void stop() throws Exception {
         // cleanly release resources
-        if (cacheService != null) {
-            cacheService.shutDown();
+        if (cacheService != null && cacheService instanceof RedisCacheService redisCache) {
+            redisCache.shutDown();
         }
 
         if (gson != null) {
@@ -102,12 +106,22 @@ public class APODApp extends Application {
             loader.setLocation(getClass().getResource("/fxml/main-apod.fxml"));
 
             // Inject Dependencies of the Controller
-            loader.setControllerFactory(param -> new MainApod(cacheService, gson, apodRepository));
+            loader.setControllerFactory(_ -> new MainApod(cacheService, gson, apodRepository));
 
             AnchorPane mainAPOD = loader.load();
             root.setCenter(mainAPOD);
         } catch (Exception e) {
             throw new RuntimeException(e);
+        }
+    }
+
+    protected void initCache() {
+        if (RedisCacheService.isRedisAvailable("localhost", 6379)) {
+            System.out.println("REDIS CACHE IS AVAILABLE AND WILL BE UNDER USAGE.");
+            this.cacheService = new RedisCacheService("localhost", 6379);
+        } else {
+            System.out.println("REDIS CACHE IS NOT AVAILABLE, APP WILL USING FALLBACK CACHE SERVICE.");
+            this.cacheService = new DefaultCacheService();
         }
     }
 

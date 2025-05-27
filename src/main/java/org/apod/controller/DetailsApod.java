@@ -18,7 +18,7 @@ import org.apod.model.APOD;
 import org.apod.model.ImageAPOD;
 import org.apod.model.VideoAPOD;
 import org.apod.repository.APODRepository;
-import org.apod.service.RedisCacheService;
+import org.apod.service.AbstractCacheService;
 
 import java.text.SimpleDateFormat;
 
@@ -32,7 +32,7 @@ public class DetailsApod {
     private final int SAVES_APOD_HEIGHT = 900;
 
     private Gson gson;
-    private RedisCacheService redisCacheService;
+    private AbstractCacheService cacheService;
     private APODRepository repository;
 
     private APOD apod;
@@ -54,8 +54,8 @@ public class DetailsApod {
     @FXML
     public WebView loader;
 
-    public DetailsApod(RedisCacheService redisCacheService, Gson gson, APODRepository repository, APOD apodData) {
-        this.redisCacheService = redisCacheService;
+    public DetailsApod(AbstractCacheService cacheService, Gson gson, APODRepository repository, APOD apodData) {
+        this.cacheService = cacheService;
         this.gson = gson;
         this.repository = repository;
         this.apod = apodData;
@@ -63,7 +63,7 @@ public class DetailsApod {
 
     @FXML
     public void initialize() {
-        String loaderMarkup = redisCacheService.get(LOADER_KEY);
+        String loaderMarkup = cacheService.get(LOADER_KEY);
         loader.getEngine().setUserStyleSheetLocation(getClass().getResource("/html/loader.css").toExternalForm());
         loader.getEngine().loadContent(loaderMarkup, "text/html");
 
@@ -164,7 +164,7 @@ public class DetailsApod {
 
             BorderPane root = rootLoader.load();
 
-            mainLoader.setControllerFactory(_ -> new MainApod(redisCacheService, gson, repository));
+            mainLoader.setControllerFactory(_ -> new MainApod(cacheService, gson, repository));
             AnchorPane homeAPOD = mainLoader.load();
 
             root.setCenter(homeAPOD);
@@ -198,7 +198,7 @@ public class DetailsApod {
 
             BorderPane root = rootLoader.load();
 
-            savesLoader.setControllerFactory(_ -> new SavesApod(redisCacheService, gson, repository));
+            savesLoader.setControllerFactory(_ -> new SavesApod(cacheService, gson, repository));
             AnchorPane savesAPOD = savesLoader.load();
 
             root.setCenter(savesAPOD);

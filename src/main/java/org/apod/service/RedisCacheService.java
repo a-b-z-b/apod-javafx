@@ -3,7 +3,7 @@ package org.apod.service;
 import redis.clients.jedis.Jedis;
 import redis.clients.jedis.JedisPool;
 
-public class RedisCacheService {
+public class RedisCacheService implements AbstractCacheService {
     private JedisPool jedisPool;
 
     public RedisCacheService(String host, int port) {
@@ -30,5 +30,14 @@ public class RedisCacheService {
 
     public void shutDown(){
         jedisPool.close();
+    }
+
+    public static boolean isRedisAvailable(String host, int port) {
+        try (Jedis jedis = new Jedis(host, port)) {
+            return jedis.ping().equals("PONG");
+        } catch (Exception e) {
+            System.err.println("Redis unavailable: " + e.getMessage());
+            return false;
+        }
     }
 }

@@ -24,7 +24,7 @@ import org.apod.model.APOD;
 import org.apod.model.ImageAPOD;
 import org.apod.model.VideoAPOD;
 import org.apod.repository.APODRepository;
-import org.apod.service.RedisCacheService;
+import org.apod.service.AbstractCacheService;
 
 import java.net.URI;
 import java.net.URL;
@@ -48,15 +48,15 @@ public class MainApod {
     private final int FACTS_BTN_LAYOUT_Y = 542;
 
     private Gson gson;
-    private RedisCacheService redisCacheService;
+    private AbstractCacheService cacheService;
 
     private APODRepository repository;
 
     private APOD theMainApod;
 
-    public MainApod(RedisCacheService redisCacheService, Gson gson, APODRepository repository) {
+    public MainApod(AbstractCacheService cacheService, Gson gson, APODRepository repository) {
         this.gson = gson;
-        this.redisCacheService = redisCacheService;
+        this.cacheService = cacheService;
         this.repository = repository;
     }
 
@@ -104,14 +104,14 @@ public class MainApod {
             }
         });
 
-        String todayApodJson = redisCacheService.get(APOD_KEY);
+        String todayApodJson = cacheService.get(APOD_KEY);
 
         String loaderMarkup = null;
-        if(redisCacheService.get(LOADER_KEY) != null) {
-            loaderMarkup = redisCacheService.get(LOADER_KEY);
+        if(cacheService.get(LOADER_KEY) != null) {
+            loaderMarkup = cacheService.get(LOADER_KEY);
         } else {
             loaderMarkup = this.loadHtmlToString("loader.html");
-            redisCacheService.set(LOADER_KEY, loaderMarkup, APOD_TTL);
+            cacheService.set(LOADER_KEY, loaderMarkup, APOD_TTL);
         }
 
         loader.getEngine().setUserStyleSheetLocation(getClass().getResource("/html/loader.css").toExternalForm());
@@ -138,7 +138,7 @@ public class MainApod {
                     .thenApply(HttpResponse::body)
                     .thenAccept(json -> {
                         // cache this json using redis
-                        redisCacheService.set(APOD_KEY,json, APOD_TTL);
+                        cacheService.set(APOD_KEY,json, APOD_TTL);
                         // render the APOD
                         renderApod(json, timeout);
                     })
@@ -270,7 +270,7 @@ public class MainApod {
 
             BorderPane root = rootLoader.load();
 
-            factsLoader.setControllerFactory(_ -> new FactsApod(redisCacheService, gson, repository));
+            factsLoader.setControllerFactory(_ -> new FactsApod(cacheService, gson, repository));
             AnchorPane factsAPOD = factsLoader.load();
 
             root.setCenter(factsAPOD);
@@ -325,7 +325,7 @@ public class MainApod {
 
             BorderPane root = rootLoader.load();
 
-            savesLoader.setControllerFactory(_ -> new SavesApod(redisCacheService, gson, repository));
+            savesLoader.setControllerFactory(_ -> new SavesApod(cacheService, gson, repository));
             AnchorPane savesAPOD = savesLoader.load();
 
             root.setCenter(savesAPOD);
