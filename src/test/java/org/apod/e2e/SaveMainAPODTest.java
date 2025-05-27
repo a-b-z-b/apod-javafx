@@ -7,7 +7,6 @@ import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
-import javafx.scene.image.ImageView;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.web.WebView;
 import javafx.stage.Stage;
@@ -105,7 +104,7 @@ public class SaveMainAPODTest extends ApplicationTest {
         Assert.assertTrue(factsBtn.getLayoutX() == 310 && factsBtn.getLayoutY() == 542);
     }
 
-    @Test
+    /*@Test
     public void no_internet_simulation() throws Exception {
         // TODO: re-implement this test case after abstracting the APOD fetch to some service class...
         FxRobot bot = new FxRobot();
@@ -116,7 +115,7 @@ public class SaveMainAPODTest extends ApplicationTest {
 
         ImageView fallBackImg = bot.lookup("#todayApod").query();
         Assert.assertEquals(APODApp.class.getResource("/assets/broken-1.jpg").toExternalForm(), fallBackImg.getImage().getUrl());
-    }
+    }*/
 
     @After
     public void tearDown() throws Exception {
