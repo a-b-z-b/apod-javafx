@@ -1,4 +1,4 @@
-name: Unit & Integration Tests for the APOD JavaFX application.
+name: Tests for the APOD JavaFX application
 
 on: [push, pull_request]
 
@@ -6,12 +6,44 @@ jobs:
   tests:
     runs-on: ubuntu-latest
 
+    services:
+      redis:
+        image: redis:latest
+        ports:
+          - 6379:6379
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
     steps:
-      - uses: actions/checkout@v3
+      - name: Checkout source
+        uses: actions/checkout@v3
+
       - name: Set up JDK 24
         uses: actions/setup-java@v3
         with:
           java-version: '24'
           distribution: 'temurin'
-      - name: Build and run tests
-        run: mvn clean -Dtest='org.apod.integration.**.*Test' test
+
+      - name: Cache Maven packages
+      - uses: actions/cache@v3
+        with:
+          path: ~/.m2/repository
+          key: ${{ runner.os }}-maven-&{{ hashFiles('**/pom.xml') }}
+          restore-keys: |
+            ${{ runner.os }}-maven
+
+
+      - name: Build and run Unit Tests
+        run: mvn clean test -Dtest='org.apod.unit.**.*Test'
+
+      - name: Build and run Integration Tests
+        run: mvn test -Dtest='org.apod.integration.**.*Test'
+
+      - name: Install Xvfb for E2E Tests
+        run: sudo apt-get update && sudo apt-get install -y xvfb
+
+      - name: Build and run End-to-End Tests (JavaFX)
+        run: xvfb-run --auto-servernum mvn test -Dtest='org.apod.e2e.**.*Test'
