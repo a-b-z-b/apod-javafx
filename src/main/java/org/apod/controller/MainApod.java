@@ -26,6 +26,7 @@ import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
+import java.text.SimpleDateFormat;
 
 public class MainApod {
     private final String APOD_KEY = "today:apod";
@@ -157,11 +158,11 @@ public class MainApod {
 
             apodTitle.setText(apod.getTitle());
 
-            if (apod instanceof VideoAPOD) {
+            if (apod instanceof VideoAPOD vid) {
                 fullscreenBtn.setVisible(true);
                 todayApod.setVisible(false);
                 fullscreenBtn.setVisible(false);
-                String ytEmbeddedVideo = ((VideoAPOD) apod).getUrl() + "&autoplay=1&mute=1&loop=1";
+                String ytEmbeddedVideo = vid.getUrl() + "&autoplay=1&mute=1&loop=1";
 
                 timeout.play();
                 apodYtVideo.getEngine().getLoadWorker().stateProperty().addListener((_, _, newValue) -> {
@@ -184,10 +185,10 @@ public class MainApod {
                 });
 
                 apodYtVideo.getEngine().load(ytEmbeddedVideo);
-            } else if(apod instanceof ImageAPOD) {
+            } else if(apod instanceof ImageAPOD img) {
                 apodYtVideo.setVisible(false);
 
-                Image image = new Image(((ImageAPOD) apod).getHdurl(), true);// true = background load
+                Image image = new Image(img.getHdurl(), true);// true = background load
 
                 image.errorProperty().addListener((_, _, isNowError) -> {
                     if(isNowError) {
