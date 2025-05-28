@@ -7,24 +7,33 @@
 <?import javafx.scene.image.Image?>
 <?import javafx.scene.image.ImageView?>
 <?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.StackPane?>
 <?import javafx.scene.text.Font?>
 <?import javafx.scene.web.WebView?>
 
 <AnchorPane fx:id="factsPane" prefHeight="478.0" prefWidth="837.0" stylesheets="@../css/facts-apod.css" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.apod.controller.FactsApod">
    <children>
       <Button fx:id="saveBtn" layoutX="395.0" layoutY="428.0" mnemonicParsing="false" onAction="#saveHandler" prefHeight="26.0" prefWidth="72.0" text="Save" />
-      <ImageView fx:id="apodImage" fitHeight="200.0" fitWidth="290.0" layoutX="150.0" layoutY="7.0" pickOnBounds="true" preserveRatio="true" />
-      <WebView fx:id="apodYtVideo" layoutX="113.0" layoutY="14.0" prefHeight="200.0" prefWidth="346.0" />
-      <Label fx:id="titleAPOD" alignment="CENTER" contentDisplay="CENTER" layoutX="144.0" layoutY="221.0" prefHeight="18.0" prefWidth="284.0" text="Loading..." textAlignment="JUSTIFY" />
+      <StackPane layoutX="150.0" layoutY="7.0" AnchorPane.bottomAnchor="309.2" AnchorPane.leftAnchor="149.8" AnchorPane.rightAnchor="396.6" AnchorPane.topAnchor="7.0">
+         <children>
+            <ImageView fx:id="apodImage" fitHeight="200.0" fitWidth="290.0" pickOnBounds="true" preserveRatio="true" />
+         </children>
+      </StackPane>
+      <StackPane layoutX="113.0" layoutY="14.0" AnchorPane.bottomAnchor="309.6" AnchorPane.leftAnchor="149.6" AnchorPane.rightAnchor="396.8" AnchorPane.topAnchor="7.2">
+         <children>
+            <WebView fx:id="apodYtVideo" prefHeight="200.0" prefWidth="346.0" />
+         </children>
+      </StackPane>
+      <Label fx:id="titleAPOD" alignment="CENTER" contentDisplay="CENTER" layoutX="153.0" layoutY="249.0" prefHeight="18.0" prefWidth="284.0" text="Loading..." textAlignment="JUSTIFY" />
       <Label fx:id="explanationAPOD" alignment="CENTER" contentDisplay="CENTER" layoutX="460.0" layoutY="7.0" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="306.0" prefWidth="358.0" text="Loading..." textAlignment="JUSTIFY" wrapText="true" />
-      <Label fx:id="cpRightPhotographer" alignment="CENTER" contentDisplay="CENTER" layoutX="113.0" layoutY="294.0" prefHeight="47.0" prefWidth="284.0" text="Loading..." />
-      <Label layoutX="113.0" layoutY="275.0" prefHeight="18.0" prefWidth="61.0" text="Credits to:">
+      <Label fx:id="cpRightPhotographer" alignment="CENTER" contentDisplay="CENTER" layoutX="120.0" layoutY="363.0" prefHeight="47.0" prefWidth="284.0" text="Loading..." />
+      <Label layoutX="120.0" layoutY="344.0" prefHeight="18.0" prefWidth="61.0" text="Credits to:">
          <font>
             <Font name="System Bold" size="12.0" />
          </font>
       </Label>
-      <Label fx:id="dateAPOD" layoutX="213.0" layoutY="395.0" prefHeight="18.0" prefWidth="100.0" text="Loading..." />
-      <Label layoutX="113.0" layoutY="362.0" prefHeight="18.0" prefWidth="90.0" text="Published the:">
+      <Label fx:id="dateAPOD" layoutX="639.0" layoutY="377.0" prefHeight="18.0" prefWidth="100.0" text="Loading..." />
+      <Label layoutX="539.0" layoutY="344.0" prefHeight="18.0" prefWidth="90.0" text="Published the:">
          <font>
             <Font name="System Bold" size="12.0" />
          </font>
